@@ -12,7 +12,7 @@ library(tibble)
 # Loading endogenous variables: EFH, ETW, GST #
 ## Loading dataset, renaming of id/name columns, transforming date correctly and sorting by district_id & quarter ##
 
-prices <- read.csv("RE_prices.csv", header = TRUE ,sep=";")
+prices <- read.csv("./data/RE_prices.csv", header = TRUE ,sep=";")
 
 prices <- prices %>%
   rename(
@@ -35,7 +35,7 @@ prices <- prices %>%
 # Loading the exogenous variables: (1) shock (EAMPD)
 
 
-shock <- read.csv("EAMPD_event.csv", header = TRUE, sep =";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+shock <- read.csv("./data/EAMPD_event.csv", header = TRUE, sep =";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 shock$X.date <- as.Date(gsub('"', "", shock$X.date), format= "%d.%m.%Y")
 shock <- subset(
   shock, 
@@ -115,7 +115,7 @@ shock_cancel_ratio <- shock_q %>%
 # Loading the exogenous variables: (2) Elasticity Dummy
 ## Using building land reserves from 2014, as to predate the overall time frame (i.e. avoid endogenetiy) ##
 
-bl <- read.csv("C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
 ## Select only 2014 data and slice off the source information from the csv ##
 
@@ -236,7 +236,7 @@ inelastic_districts <- bl  %>%
 ## Population at boq based on CRR (central residence register)
 ## available quarterly by district
 
-c_pop <- read.csv("cc_pop.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+c_pop <- read.csv("./data/cc_pop.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
 c_pop_long <- c_pop %>%
   mutate(
@@ -298,7 +298,7 @@ c_pop_long <- c_pop_long %>%
 ## For now, I will treat the annual figures as quarterly (i.e. fortschreiben auf quartalsbasis)
 
 
-c_unemp <- read.csv("C_unemp.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+c_unemp <- read.csv("./data/C_unemp.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
 # c_unemp <- c_unemp %>%
  # slice(1:116)
@@ -353,7 +353,7 @@ c_unemp_long <- c_unemp_long %>%
 # For now: I will construct net income per capita, using population from before (i.e. building yearly averages from the quarterly population data)
 # and dividing district net income by that average. 
 
-c_inc <- read.csv("C_inc.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+c_inc <- read.csv("./data/C_inc.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
 date_cols <- grep("^X\\d{2}\\.\\d{2}\\.\\d{4}$", names(c_inc), value = TRUE)
 

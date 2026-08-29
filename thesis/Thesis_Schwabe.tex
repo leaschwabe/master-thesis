@@ -1,0 +1,218 @@
+\documentclass[a4paper,12pt, headsepline]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\pagestyle{plain}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage[official]{eurosym}
+\usepackage{ntheorem}
+\newtheorem{hyp}{Hypothesis}
+\usepackage{pdfpages}
+\usepackage{adjustbox}
+\usepackage{footnote}
+\usepackage{titling}
+\usepackage{csquotes}
+\usepackage[objectset = centering]{floatrow}
+\usepackage{moreverb}
+\usepackage{varioref}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{dcolumn}
+\usepackage{color}
+\usepackage{amsmath} 
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{relsize}
+\usepackage{bm}
+\usepackage{dsfont}
+\usepackage{algorithm2e}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage[mathscr]{euscript}
+\usepackage[
+colorlinks = true,
+linkcolor = black,
+citecolor = blue,
+urlcolor = teal 
+]{hyperref}
+
+\setlength{\parindent}{0ex} 
+\setlength{\parskip}{1ex}
+
+
+\usepackage[automark]{scrlayer-scrpage}
+\setkomafont{pagehead}{\scshape}
+\pagestyle{scrheadings}
+\ihead{\headmark}
+\chead{}
+\ohead{}
+
+\cfoot{\pagemark}
+
+\usepackage{csquotes}
+\usepackage[
+backend=biber,
+natbib=true,
+language = english,
+doi = false, url = false, isbn = false, eprint = false,
+style = apa]
+{biblatex}
+%%
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+% \usepackage{tabu} % removed: tabu is unmaintained and no longer shipped by MiKTeX; use booktabs/tabularx/longtable instead
+% \usepackage{threeparttable}
+% \usepackage{threeparttablex}
+% \usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+%%
+
+\DeclareLanguageMapping{english}{english-apa}
+\addbibresource{literature.bib}
+
+%% Commands %%
+\DeclareMathOperator*{\argminA}{arg\,min}
+\DeclareMathOperator*{\argmaxA}{arg\,max}
+\DeclareMathOperator*{\maxA}{max}
+\DeclareMathOperator*{\minA}{min}
+\newenvironment{proof}{\paragraph{Proof:}}{\hfill$\square$}
+%%%%%%%%%%%%%%
+
+% Schrift
+\setkomafont{sectioning}{\rmfamily\bfseries\boldmath}
+
+\setcapindent{0em} % kein Einrücken der Caption von Figures und Tabellen
+\setcapwidth{0.9\textwidth} % Breite der Caption nur 90% der Textbreite, damit sie sich vom restlichen Text abhebt
+\setlength{\abovecaptionskip}{0.2cm} % Abstand der zwischen Bild- und Bildunterschrift
+%\renewcommand{\baselinestretch}{1.5}
+\numberwithin{equation}{section}
+\title{Thesis Title}
+\date{\today}
+\author{Author Name\\[0.47cm]Supervisors:\\Supervisor One\\Supervisor Two}
+\begin{document}
+\begin{titlingpage}
+\maketitle
+\begin{abstract}
+\begin{center}
+	\textbf{Abstract}
+\end{center}
+\vspace*{2pt}
+% Abstract text goes here.
+\end{abstract}
+\end{titlingpage}
+\newpage
+\thispagestyle{empty}
+\vspace*{6.5cm}
+\begin{center}
+\textbf{Acknowledgements}
+\end{center}
+\vspace*{-17pt}
+% Acknowledgements text goes here.
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+\pagenumbering{arabic} 
+
+\section{Introduction}\label{sec:int}
+% Section text goes here. Example of an inline citation \citep{examplekey}.
+
+% Example figure (place image files in the charts/ folder):
+% \begin{figure}[H]
+% 	\includegraphics[width = 14cm]{charts/example.pdf}
+% 	\caption{Example Caption}\label{fig:example}
+% \end{figure}
+
+\section{Section Heading}\label{sec:one}
+% Section text goes here.
+
+\subsection{Subsection Heading}\label{subsec:one}
+% Subsection text goes here.
+
+\subsubsection{Subsubsection Heading}\label{subsubsec:one}
+% Subsubsection text goes here.
+
+% Example of the hypothesis environment:
+% \begin{hyp}
+% 	State a hypothesis here.
+% \end{hyp}
+
+% Example itemize list:
+% \begin{itemize}
+% 	\item First item
+% 	\item Second item
+% \end{itemize}
+
+% Example inline and displayed math:
+% The parameter $\beta$ is estimated by
+% \[
+% \hat\beta = \argminA_{\beta} \; \sum_{i=1}^{n} (y_i - x_i^\top \beta)^2 .
+% \]
+
+% Example multi-line aligned equation:
+% \begin{gather*}
+% 	a = b + c\\
+% 	d = e - f.
+% \end{gather*}
+
+\section{Methods}\label{sec:meth}
+% Section text goes here.
+
+% Example algorithm environment (algorithm2e):
+% \RestyleAlgo{ruled}
+% \SetKwComment{Comment}{/* }{ */}
+% {\centering
+% \begin{minipage}{.9\linewidth}
+% 	\begin{algorithm}[H]
+% 		\caption{\textit{Algorithm Name}}\label{alg:example}
+% 		\KwData{Describe the inputs here.}
+% 		\begin{enumerate}
+% 			\item First step.
+% 			\begin{enumerate}[i.]
+% 				\item Substep.
+% 			\end{enumerate}
+% 			\item Return the result.
+% 		\end{enumerate}
+% 	\end{algorithm}
+% \end{minipage}
+% \par
+% }
+
+\section{Results}\label{sec:res}
+% Section text goes here.
+
+% Example table with booktabs and shaded cells:
+% \begin{table}[H]
+% 	\centering
+% 	\begin{tabular}[t]{lcc}
+% 		\toprule
+% 		& Column A & Column B \\
+% 		\midrule
+% 		\cellcolor{gray!6}{Row 1} & \cellcolor{gray!6}{1} & \cellcolor{gray!6}{2}\\
+% 		Row 2 & 3 & 4\\
+% 		\bottomrule
+% 	\end{tabular}
+% 	\caption{Example Table}\label{tab:example}
+% \end{table}
+
+\section{Conclusion}\label{sec:con}
+% Section text goes here.
+
+\newpage
+\printbibliography[heading=bibintoc]
+\newpage
+\appendix
+\section{Appendix: Proofs}
+\subsection{Example Proof}\label{App:A1}
+% \begin{proof}
+% 	Proof body goes here.
+% \end{proof}
+\end{document}
