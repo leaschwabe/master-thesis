@@ -1,0 +1,148 @@
+---
+title: "MA Schwabe"
+subtitle: "Data Preparation"
+author: "Lea Schwabe"
+date: today
+embed-resources: true
+code-link: true
+code-tools: true
+fig-align: center
+format:
+  html: 
+    toc: true
+    toc-location: right
+    output-ext: html.html
+    theme:
+      light: flatly
+      dark: darkly
+  pdf: 
+    toc: true
+    number-sections: true
+    code-link: true
+    #toc: true
+    echo: true
+    code-fold: false
+    code-tools: true
+    code-link: true
+    code-line-numbers: false
+    #code-link: true
+    scrollable: true
+    #smaller: true
+    reference-location: document
+execute: 
+  warning: false
+---
+```{r}
+library(dplyr)
+library(tidyr)
+library(knitr)
+```
+
+# Loading the datasets
+
+## Price Data - Dependent Variable
+
+```{r}
+# Reading and reformatting
+prices <- read.csv("RE_prices.csv", header = TRUE ,sep=";")
+prices <- prices %>%
+  mutate(quarter=as.character(quarter))
+
+# Subset and pivot efh
+efh <- subset(prices, select = c("bez_id", "bez_name", "quarter", "efh_avg"))
+efh <- efh %>%
+  pivot_wider(
+    id_cols = c("bez_id", "bez_name"),
+    names_from = quarter,
+    values_from = efh_avg,
+    names_sort = TRUE
+  )
+
+# Subset and pivot etw
+etw <- subset(prices, select = c("bez_id", "bez_name", "quarter", "etw_avg"))
+etw <- etw %>%
+  pivot_wider(
+    id_cols = c("bez_id", "bez_name"),
+    names_from = quarter,
+    values_from = etw_avg,
+    names_sort = TRUE
+  )
+
+# Subset and pivot gst
+gst <- subset(prices, select = c("bez_id", "bez_name", "quarter", "gst"))
+gst <- gst %>%
+  pivot_wider(
+    id_cols = c("bez_id", "bez_name"),
+    names_from = quarter,
+    values_from = gst,
+    names_sort = TRUE
+  )
+
+```
+### Data Dictionary - Price Data
+
+```{r}
+price_dd <- tibble::tibble(
+  Variable = c("bez_id", "bez_name", "efh", "etw", "gst"),
+  Type = c("Integer", "Character", rep("Numeric", 3)),
+  Definition = c(
+    "Identifier for each Austrian political district",
+    "Name of each Austrian political district",
+    "Average transaction price of single family houses in EUR per m²",
+    "Average transaction price of apartments in EUR per m²",
+    "Average transaction price of building plots in EUR per m²"
+  )
+)
+kable(price_dd)
+```
+
+
+
+
+## Event Data - Interaction Term
+
+```{r}
+shock <- read.csv("EAMPD_event.csv", header = TRUE, sep =";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+
+shock$X.date <- as.Date(gsub('"', "", shock$X.date), format= "%d.%m.%Y")
+
+shock <- subset(
+  shock, 
+  X.date >= as.Date("2010-01-01"),
+  select = c("X.date", "OIS_20Y", "DE20Y", "DE30Y")
+  )
+
+```
+## Control Variables - Interaction Term
+
+```{r}
+# Building Land
+bl <- read.csv("C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+
+# Household Size
+hhsize <- read.csv("C_hhsize.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+
+# Net income with reordering columns
+inc <- read.csv("C_inc.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+
+date_cols <- grep("^X\\d{2}\\.\\d{2}\\.\\d{4}$", names(inc), value = TRUE)
+
+ordered_date_cols <- date_cols[
+  order(as.Date(sub("^X", "", date_cols), format = "%d.%m.%Y"))
+]
+
+inc <- inc[c(setdiff(names(inc), date_cols), ordered_date_cols)]
+
+# Population
+pop <- read.csv("C_pop.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+
+# Unemployment
+unemp <- read.csv("C_unemp.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+head(unemp)
+```
+
+
+```{r}
+
+```
+
