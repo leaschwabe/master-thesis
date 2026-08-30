@@ -11,6 +11,17 @@ library(tibble)
 
 # Loading endogenous variables: EFH, ETW, GST #
 ## Loading dataset, renaming of id/name columns, transforming date correctly and sorting by district_id & quarter ##
+##
+## TODO (OUTCOME CHOICE - open decision): RE_prices has three price measures:
+##   gst      = building land (Bauland) -> likely obsolete for the main regression
+##   efh_avg  = single-family houses    -> candidate primary outcome
+##   etw_avg  = apartments (condos)      -> candidate primary / alternative outcome
+## Decide the primary outcome vs. alternative-response outcomes (structure ss. 7.1/7.2).
+## Linked decision - VIENNA: the single-family-house market in Vienna is likely too thin to be
+## meaningful, whereas the apartment market is more significant there than in any other district.
+## Consider handling Vienna separately or only as a robustness check (structure ss. 7.3), and note
+## this interacts with the elastic/inelastic classification (Vienna is already excluded from the
+## Q25 threshold below).
 
 prices <- read.csv("./data/RE_prices.csv", header = TRUE ,sep=";")
 
@@ -44,6 +55,12 @@ shock <- subset(
 )
 
 ### Construction of aggregate quarterly MP shock:
+  ## TODO (SIGN CONVENTION - lock before estimation): OIS_20Y is the chosen primary instrument.
+  ## A negative value = downward revision of long-term rates = monetary EASING surprise.
+  ## Because the outcome/interaction is coded on the raw signed sum, the expected sign of beta_h
+  ## on (Shock x Inelastic) flips with this convention. Make the Data + Empirical Strategy
+  ## chapters state the convention explicitly so the interpretation of beta_h is not reversed.
+  ## (DE20Y/DE30Y are retained for robustness only.)
   ## shock_net_** = net sum of shocks per quarter, 
   ## shock_pos_** = sum of positive shocks per quarter,
   ## shock_neg_** = sum of negative shocks per quarter, 
@@ -108,7 +125,10 @@ shock_cancel_ratio <- shock_q %>%
   )
 
 
-## definetly check again!!
+## NOTE: shock_cancel_ratio is a DIAGNOSTIC only (it does not feed into the panel/estimation).
+## A high mean cancellation (net << abs) means the quarterly NET sum discards within-quarter
+## offsetting information. This motivates the "alternative shock aggregation" robustness check
+## (structure ss. 7.3): e.g. using only easing-direction shocks (shock_neg_*) as an alternative.
 
 # -----------------------------------------------------------------------------#
 
@@ -296,12 +316,22 @@ c_pop_long <- c_pop_long %>%
 # Loading Control Variables: (2) Unemployment
 ## Unemployment is available at the district level, on an annual basis.
 ## For now, I will treat the annual figures as quarterly (i.e. fortschreiben auf quartalsbasis)
+##
+## TODO (DATA GAP - address soon): C_unemp.csv only covers 2012-2023. After the join to
+## all_quarters (which runs to 2025 Q4), unemployment for 2024 Q1 - 2025 Q4 is NA. In the LP
+## regression these rows would be dropped listwise, removing the entire post-tightening period
+## that sub-question (c) on asymmetric responses depends on. Decide: carry forward 2023, or
+## source 2024/2025 district unemployment from Statistik Austria, then extend analogously to
+## population/income.
 
 
 c_unemp <- read.csv("./data/C_unemp.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
-# c_unemp <- c_unemp %>%
- # slice(1:116)
+## Drop the trailing source-note / blank rows automatically (content-based, idempotent).
+## Real districts always have a numeric district_id; the "Quelle: ..." note and empty rows
+## become NA under as.integer() and are removed. Safe to rerun; never slices real data.
+c_unemp <- c_unemp %>%
+  filter(!is.na(suppressWarnings(as.integer(district_id))))
 
 c_unemp_long <- c_unemp %>%
   mutate(
@@ -352,6 +382,9 @@ c_unemp_long <- c_unemp_long %>%
 # Annual Figures, Net Income of District
 # For now: I will construct net income per capita, using population from before (i.e. building yearly averages from the quarterly population data)
 # and dividing district net income by that average. 
+# NOTE: The source file (C_inc.csv) contains a 01.12.2023 column, but it is EMPTY for every
+# district. Observed income is therefore available only through 2022. Years 2023, 2024 and 2025
+# are deliberately extrapolated from observed 2022 totals using the nominal Tariflohnindex (see below).
 
 c_inc <- read.csv("./data/C_inc.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
@@ -363,11 +396,11 @@ ordered_date_cols <- date_cols[
 
 c_inc <- c_inc[c(setdiff(names(c_inc), date_cols), ordered_date_cols)]
 
-# c_inc <- c_inc %>%
- # slice(1:116)
-
+## Drop the trailing source-note / blank rows automatically (content-based, idempotent).
+## Real districts always have a numeric district_id; the "Quelle: ..." note and empty rows
+## become NA under as.integer() and are removed. Safe to rerun; never slices real data.
 c_inc <- c_inc %>%
-  filter(!is.na(province), district_id != "") %>%
+  filter(!is.na(suppressWarnings(as.integer(district_id)))) %>%
   mutate(
     district_id = as.integer(district_id),
     across(starts_with("X"), as.numeric)
@@ -386,13 +419,14 @@ c_inc_long <- c_inc %>%
   select(district_id, district_name, year, income_total) %>%
   filter(
     year >= 2017,
-    year <= 2022,
+    year <= 2022,          # 2023 observed column is empty -> extrapolated below, not kept here
     !is.na(income_total)
   ) %>%
   arrange(district_id, year)
 
 
 ## Adding extrapolated annual (district-level) income totals for 2023-2025:
+## 2023 is extrapolated as well (source column empty for all districts).
 ## Using the nominal Tariflohnindex (OeNB)
 
 wage_index <- tibble(

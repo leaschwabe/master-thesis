@@ -94,9 +94,9 @@ style = apa]
 \setlength{\abovecaptionskip}{0.2cm} % Abstand der zwischen Bild- und Bildunterschrift
 %\renewcommand{\baselinestretch}{1.5}
 \numberwithin{equation}{section}
-\title{Thesis Title}
+\title{Monetary Policy Transmission and Building Land Scarcity:\\ A Panel Local Projections Analysis of Regional Austrian Housing Markets}
 \date{\today}
-\author{Author Name\\[0.47cm]Supervisors:\\Supervisor One\\Supervisor Two}
+\author{Lea Schwabe\\(11908829)\\[0.47cm]Supervisor:\\Assoz.~Prof.~Mag.~Dr.~Paul Pichler}
 \begin{document}
 \begin{titlingpage}
 \maketitle
@@ -122,74 +122,238 @@ style = apa]
 \clearpage
 \pagenumbering{arabic} 
 
+% =============================================================================
+%  1. INTRODUCTION
+%  Purpose: Motivate the thesis, define the empirical problem, state the
+%  (expected) contribution.
+%  Guiding questions: Why is the reaction of regional real estate markets to
+%  aggregate monetary policy shocks heterogeneous? Why is the district-level
+%  analysis analytically needed? What is the direct contribution versus
+%  existing literature in Austria?
+% =============================================================================
 \section{Introduction}\label{sec:int}
-% Section text goes here. Example of an inline citation \citep{examplekey}.
 
-% Example figure (place image files in the charts/ folder):
+\subsection{Motivation}\label{subsec:motivation}
+% Austrian real estate price boom, affordability, monetary policy phases,
+% regional differences -- why are regional responses to common shocks
+% heterogeneous?
+
+\subsection{Research Gap}\label{subsec:gap}
+% National trends are documented; the interaction between ECB shocks and land
+% scarcity has not been directly estimated.
+
+\subsection{Research Question}\label{subsec:rq}
+% Primary RQ: To what extent do local supply constraints moderate the dynamic
+% response of district-level real estate prices to ECB monetary shocks in
+% Austria?
+% Sub-questions: (a) magnitude of cumulative log price changes across
+% elastic/inelastic districts; (b) temporal response over a three-year horizon;
+% (c) asymmetry across monetary policy phases.
+
+\subsection{Contribution}\label{subsec:contribution}
+% Evidence at the district level.
+
+\subsection{Thesis Outline}\label{subsec:outline}
+% Brief roadmap of the remaining chapters.
+
+% =============================================================================
+%  2. INSTITUTIONAL AND ECONOMIC BACKGROUND
+%  Purpose: Explain the Austrian and Euro Area context (pre literature review).
+%  Guiding questions: Which phases of monetary policy (during the sample period)
+%  are relevant for Austria? How do districts differ in prices, urbanity and
+%  building land? How do districts differ structurally from each other?
+% =============================================================================
+\section{Institutional and Economic Background}\label{sec:background}
+
+\subsection{ECB Monetary Policy Context}\label{subsec:ecb-context}
+% APP, PEPP, rate-hiking cycle; why high-frequency monetary shocks are
+% preferable to policy-period dummies.
+
+\subsection{The Austrian Real Estate Market, 2017--2025}\label{subsec:at-market}
+% National price trends, descriptive narrative of real estate market
+% developments; possibly include mortgage rates during monetary policy phases.
+
+\subsection{Regional Housing Market Heterogeneity}\label{subsec:regional-heterogeneity}
+% Why and how do Austrian districts differ structurally: urban/rural
+% differences, land scarcity, topography, zoning, population/demographic
+% pressures.
+
+% =============================================================================
+%  3. LITERATURE REVIEW: THEORY AND HYPOTHESES
+%  Purpose: Position the thesis in the monetary transmission literature.
+%  Guiding questions: Which mechanisms indicate that inelastic districts react
+%  differently to monetary policy shocks? What is the precise research gap for
+%  Austria? Which testable hypotheses can be derived from existing literature?
+% =============================================================================
+\section{Literature Review: Theory and Hypotheses}\label{sec:literature}
+
+\subsection{Monetary Policy and Housing Prices}\label{subsec:mp-housing}
+% Housing channel of monetary policy; monetary policy transmission literature.
+
+\subsection{Housing Supply Constraints and Monetary Policy Transmission}\label{subsec:supply-transmission}
+% How do regional supply constraints shape monetary policy transmission through
+% housing markets? (Possibly a sub-chapter of 3.1.)
+
+\subsection{Austrian Housing and Land Price Evidence}\label{subsec:at-evidence}
+% Descriptive literature for Austria (from the proposal).
+
+\subsection{Remaining Gap and Hypotheses}\label{subsec:hypotheses}
+% Existing work supports the mechanism, but not yet with Austrian district-level
+% price data using local land-scarcity classifications. Derive testable
+% hypotheses here.
+%
+% \begin{hyp}
+% 	Stronger price responses in supply-inelastic districts.
+% \end{hyp}
+% \begin{hyp}
+% 	More persistent effects over time in supply-inelastic districts.
+% \end{hyp}
+% \begin{hyp}
+% 	Asymmetric responses across monetary policy phases (smaller reversal
+% 	effects in supply-inelastic districts).
+% \end{hyp}
+
+% =============================================================================
+%  4. DATA AND VARIABLES
+%  Purpose: Define the spatial and temporal unit (district level, number of
+%  districts, sample period, balanced/unbalanced panel, etc.).
+%  Guiding questions: Which variables enter the panel? How is inelasticity
+%  measured? How are daily ECB shocks transformed and merged with the quarterly
+%  panel? How are districts temporally harmonized?
+% =============================================================================
+\section{Data and Variables}\label{sec:data}
+
+\subsection{Real Estate Price Data}\label{subsec:price-data}
+% Units, data description, price measure, missingness, transformations.
+
+\subsection{Monetary Policy Shocks}\label{subsec:shock-data}
+% EA-MPD source, chosen shock variable (OIS 20Y), event-to-quarter aggregation,
+% sign convention, scaling.
+
+\subsection{Supply-Constraint Measure}\label{subsec:supply-measure}
+% OeROK building land reserves; construction of the inelastic dummy.
+
+\subsection{Control Variables}\label{subsec:controls}
+% Unemployment, population, net income per capita: source, frequency,
+% transformations, interpolation where applicable.
+
+\subsection{Final Panel Construction}\label{subsec:panel-construction}
+% Merging logic, district IDs, missing values, final observation count.
+
+% =============================================================================
+%  5. EMPIRICAL STRATEGY
+%  Purpose: Explain the local projections approach and empirical model,
+%  identification, and interpretation.
+%  Guiding questions: How do panel local projections work? Why and how does beta
+%  identify the differential response of inelastic districts? Which assumptions
+%  are critical?
+% =============================================================================
+\section{Empirical Strategy}\label{sec:strategy}
+
+\subsection{Panel Local Projections}\label{subsec:lp}
+% Methodological background: how are impulse response functions estimated?
+
+\subsection{Baseline Model and Identification}\label{subsec:baseline}
+% Discuss inputs, controls, lagged or not, etc.
+%
+% The following model is specified for each horizon $h = 1, \ldots, 12$:
+% \begin{equation}
+% 	y_{i,t+h} - y_{i,t-1} = \alpha_{i,h} + \tau_{t,h}
+% 		+ \beta_h \left( \text{Shock}_t \times \text{Inelastic}_i \right)
+% 		+ \theta_h X_{i,t} + \varepsilon_{i,t+h}. \label{eq:lp}
+% \end{equation}
+
+\subsection{Interpretation of the Coefficient}\label{subsec:coef-interpretation}
+% Differential response interpretation of $\beta_h$.
+
+\subsection{Outcome Transformation}\label{subsec:outcome}
+% Cumulative log change from $t-1$ to $t+h$ (cf. Jorda, Federal Reserve paper).
+
+\subsection{Fixed Effects}\label{subsec:fe}
+% District and time fixed effects; stress that including time FE means the model
+% estimates a differential response.
+
+\subsection{Inference and Identification Assumptions}\label{subsec:inference}
+% Clustering of standard errors (Driscoll--Kraay or two-way clustering?);
+% exogeneity of MP shocks; no omitted district-specific shock correlated with
+% inelasticity and price responses; validity of the land-reserve proxy.
+
+% =============================================================================
+%  6. DESCRIPTIVE EVIDENCE
+%  Purpose: Pre-estimation evidence. Should not argue causality; show that the
+%  data contains meaningful regional heterogeneity and motivate the LP analysis.
+%  Guiding questions: Are there clear regional patterns before estimation? How
+%  large and how persistent are the price reactions? Are differences
+%  economically relevant or only statistically significant?
+% =============================================================================
+\section{Descriptive Evidence}\label{sec:descriptive}
+% Summary statistics by property type; district classification summary (number
+% of elastic/inelastic districts, including/excluding Vienna); map of building
+% land reserves (spatial patterns of supply constraints); national (median)
+% price by property type (2017--2025); elastic vs. inelastic prices;
+% distribution of cumulative price changes; correlation plot (reserve measure
+% vs. price level/growth).
+
+% =============================================================================
+%  7. EMPIRICAL RESULTS
+% =============================================================================
+\section{Empirical Results}\label{sec:results}
+
+\subsection{Baseline Results}\label{subsec:baseline-results}
+% House prices as primary outcome; IRF plot.
+
+\subsection{Alternative Responses}\label{subsec:alt-responses}
+% Apartments, building land.
+
+\subsection{Robustness Checks}\label{subsec:robustness}
+% Vienna treatment, alternative thresholds, continuous reserve measure,
+% alternative shock aggregation, shorter horizon, etc.
+
+% =============================================================================
+%  8. DISCUSSION
+%  Purpose: Interpret results, connect to literature, discuss limitations.
+% =============================================================================
+\section{Discussion}\label{sec:discussion}
+
+\subsection{Interpretation of Findings}\label{subsec:interpretation}
+% Are inelastic districts more sensitive? Is the effect persistent? Does the
+% response differ by property type? Relate back to the sub-questions (temporal
+% response, etc.).
+
+\subsection{Relation to Literature}\label{subsec:relation-literature}
+
+\subsection{Economic Relevance}\label{subsec:economic-relevance}
+
+\subsection{Policy Implications}\label{subsec:policy}
+
+\subsection{Limitations}\label{subsec:limitations}
+% Short sample / availability of price data, supply proxy measurement, Vienna,
+% causal interpretation.
+
+% =============================================================================
+%  9. CONCLUSION
+% =============================================================================
+\section{Conclusion}\label{sec:con}
+% Restate the research question, summarize data and method, summarize the main
+% empirical findings, state the contribution, mention limitations and future
+% research possibilities.
+
+\newpage
+\printbibliography[heading=bibintoc]
+
+\newpage
+\appendix
+\section{Appendix}\label{sec:appendix}
+% Supplementary tables and figures.
+
+% --- Formatting reference snippets (uncomment and adapt as needed) -----------
+% Figure (place image files in the charts/ folder):
 % \begin{figure}[H]
 % 	\includegraphics[width = 14cm]{charts/example.pdf}
 % 	\caption{Example Caption}\label{fig:example}
 % \end{figure}
-
-\section{Section Heading}\label{sec:one}
-% Section text goes here.
-
-\subsection{Subsection Heading}\label{subsec:one}
-% Subsection text goes here.
-
-\subsubsection{Subsubsection Heading}\label{subsubsec:one}
-% Subsubsection text goes here.
-
-% Example of the hypothesis environment:
-% \begin{hyp}
-% 	State a hypothesis here.
-% \end{hyp}
-
-% Example itemize list:
-% \begin{itemize}
-% 	\item First item
-% 	\item Second item
-% \end{itemize}
-
-% Example inline and displayed math:
-% The parameter $\beta$ is estimated by
-% \[
-% \hat\beta = \argminA_{\beta} \; \sum_{i=1}^{n} (y_i - x_i^\top \beta)^2 .
-% \]
-
-% Example multi-line aligned equation:
-% \begin{gather*}
-% 	a = b + c\\
-% 	d = e - f.
-% \end{gather*}
-
-\section{Methods}\label{sec:meth}
-% Section text goes here.
-
-% Example algorithm environment (algorithm2e):
-% \RestyleAlgo{ruled}
-% \SetKwComment{Comment}{/* }{ */}
-% {\centering
-% \begin{minipage}{.9\linewidth}
-% 	\begin{algorithm}[H]
-% 		\caption{\textit{Algorithm Name}}\label{alg:example}
-% 		\KwData{Describe the inputs here.}
-% 		\begin{enumerate}
-% 			\item First step.
-% 			\begin{enumerate}[i.]
-% 				\item Substep.
-% 			\end{enumerate}
-% 			\item Return the result.
-% 		\end{enumerate}
-% 	\end{algorithm}
-% \end{minipage}
-% \par
-% }
-
-\section{Results}\label{sec:res}
-% Section text goes here.
-
-% Example table with booktabs and shaded cells:
+%
+% Table with booktabs and shaded cells:
 % \begin{table}[H]
 % 	\centering
 % 	\begin{tabular}[t]{lcc}
@@ -202,17 +366,6 @@ style = apa]
 % 	\end{tabular}
 % 	\caption{Example Table}\label{tab:example}
 % \end{table}
+% ----------------------------------------------------------------------------
 
-\section{Conclusion}\label{sec:con}
-% Section text goes here.
-
-\newpage
-\printbibliography[heading=bibintoc]
-\newpage
-\appendix
-\section{Appendix: Proofs}
-\subsection{Example Proof}\label{App:A1}
-% \begin{proof}
-% 	Proof body goes here.
-% \end{proof}
 \end{document}
