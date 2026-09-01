@@ -12,16 +12,15 @@ library(tibble)
 # Loading endogenous variables: EFH, ETW, GST #
 ## Loading dataset, renaming of id/name columns, transforming date correctly and sorting by district_id & quarter ##
 ##
-## TODO (OUTCOME CHOICE - open decision): RE_prices has three price measures:
-##   gst      = building land (Bauland) -> likely obsolete for the main regression
-##   efh_avg  = single-family houses    -> candidate primary outcome
-##   etw_avg  = apartments (condos)      -> candidate primary / alternative outcome
-## Decide the primary outcome vs. alternative-response outcomes (structure ss. 7.1/7.2).
-## Linked decision - VIENNA: the single-family-house market in Vienna is likely too thin to be
-## meaningful, whereas the apartment market is more significant there than in any other district.
-## Consider handling Vienna separately or only as a robustness check (structure ss. 7.3), and note
-## this interacts with the elastic/inelastic classification (Vienna is already excluded from the
-## Q25 threshold below).
+## OUTCOME PLAN: RE_prices has three price measures:
+##   gst      = building land (Bauland) -> excluded from the housing outcome
+##   efh_avg  = single-family houses
+##   etw_avg  = apartments (condos)
+## Primary outcome = a district-level COMPOSITE of efh & etw, using fixed 2011 dwelling-stock
+## weights (constructed below, right after the prices). Robustness = efh-only excluding Vienna
+## (co-equal identification check, cleanest of the composition/elasticity confound) and etw-only.
+## Baseline vs. robustness ordering to be finalised (see structure ss. 7.1-7.3). The composite
+## avoids excluding Vienna (its thin single-family market is down-weighted, apartments up-weighted).
 
 prices <- read.csv("./data/RE_prices.csv", header = TRUE ,sep=";")
 
@@ -40,6 +39,46 @@ prices <- prices %>%
     )
   ) %>%
   arrange(district_id, quarter)
+
+# -----------------------------------------------------------------------------#
+
+# Composite outcome weights: fixed 2011 dwelling-stock shares (house vs. apartments)
+## Source: Statistik Austria Gebaeude- und Wohnungszaehlung 2011, per district.
+## The columns count DWELLINGS by the size of the building they sit in:
+##   w1     = dwellings in single-dwelling buildings
+##   w2     = dwellings in two-dwelling buildings
+##   w3_5   = dwellings in buildings with 3-5 dwellings
+##   w6_10  = dwellings in buildings with 6-10 dwellings
+##   w11_20 = dwellings in buildings with 11-20 dwellings
+##   w21p   = dwellings in buildings with 21+ dwellings
+## Dwelling counts (not building counts) are used because the price series are per-dwelling,
+## so the weight should reflect the number of dwellings of each type actually being priced.
+## HOUSE class = w1 + w2: single-dwelling plus two-dwelling buildings, the latter to capture
+## Doppelhaushaelften / duplexes, which behave like the owner-occupied "house" (efh) market.
+## APARTMENT class = w3_5 + w6_10 + w11_20 + w21p (condo/ETW-type stock).
+## (Robustness idea: move w2 into the apartment class to probe this classification choice.)
+## Weights are FIXED at 2011 (pre-sample) to keep them exogenous, mirroring the 2014
+## building-land logic. Used later (panel/estimation script) to build the composite outcome:
+##   y_composite = w_house * dlog(efh) + w_apt * dlog(etw).
+
+cw <- read.csv("./data/composite_weight_data.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
+
+## Drop the trailing source-note / blank rows automatically (content-based, idempotent).
+cw <- cw %>%
+  filter(!is.na(suppressWarnings(as.integer(district_id))))
+
+composite_weights <- cw %>%
+  mutate(
+    district_id = as.integer(district_id),
+    across(c(w1, w2, w3_5, w6_10, w11_20, w21p), as.numeric),
+    n_house = w1 + w2,
+    n_apt   = w3_5 + w6_10 + w11_20 + w21p,
+    n_tot   = n_house + n_apt,
+    w_house = n_house / n_tot,
+    w_apt   = n_apt / n_tot
+  ) %>%
+  select(district_id, district_name, w_house, w_apt, n_house, n_apt, n_tot) %>%
+  arrange(district_id)
 
 # -----------------------------------------------------------------------------#
 
@@ -315,14 +354,12 @@ c_pop_long <- c_pop_long %>%
 
 # Loading Control Variables: (2) Unemployment
 ## Unemployment is available at the district level, on an annual basis.
-## For now, I will treat the annual figures as quarterly (i.e. fortschreiben auf quartalsbasis)
+## Annual figures are treated as quarterly (i.e. fortschreiben auf Quartalsbasis).
 ##
-## TODO (DATA GAP - address soon): C_unemp.csv only covers 2012-2023. After the join to
-## all_quarters (which runs to 2025 Q4), unemployment for 2024 Q1 - 2025 Q4 is NA. In the LP
-## regression these rows would be dropped listwise, removing the entire post-tightening period
-## that sub-question (c) on asymmetric responses depends on. Decide: carry forward 2023, or
-## source 2024/2025 district unemployment from Statistik Austria, then extend analogously to
-## population/income.
+## Coverage: observed district-level data runs 2012-2024. District-level figures for 2025 are
+## not yet available (as of Aug 2026), so 2025 Q1-Q4 are imputed by carrying forward each
+## district's 2024 value (fill down after the join). This mirrors the population treatment and
+## is defensible for a slow-moving annual series within the scope of this thesis.
 
 
 c_unemp <- read.csv("./data/C_unemp.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
@@ -355,13 +392,13 @@ c_unemp_long <- c_unemp %>%
   arrange(district_id, quarter)
 
 
-# restricting to relevant sample, starting in Q1 2017, adding quarters from 2024 onwards (to be filled later lol)
+# restricting to relevant sample, carrying forward 2024 values for 2025 (not available as of August 31st 2026)
 
 
 c_unemp_long <- c_unemp_long %>%
   filter(
     quarter >= as.yearqtr("2017 Q1", format = "%Y Q%q"),
-    quarter <= as.yearqtr("2023 Q4", format = "%Y Q%q")
+    quarter <= as.yearqtr("2024 Q4", format = "%Y Q%q")
   )
 
 
@@ -373,7 +410,10 @@ c_unemp_long <- c_unemp_long %>%
       crossing(all_quarters),
     by = c("district_id", "district_name", "quarter")
   ) %>%
-  arrange(district_id, quarter)
+  arrange(district_id, quarter) %>%
+  group_by(district_id, district_name) %>%
+  fill(unemp_rate, .direction = "down") %>%
+  ungroup()
 
 
 # -----------------------------------------------------------------------------#
