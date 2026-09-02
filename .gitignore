@@ -71,3 +71,9 @@ rsconnect/
 *.vrb
 *.xdv
 *.thm
+
+# PDF files: ignore all (literature, presentations, etc.) EXCEPT the compiled
+# thesis output and the thesis proposal, which we do want tracked.
+*.pdf
+!thesis/Thesis_Schwabe.pdf
+!misc/Schwabe_ThesisProposal_20260215.pdf

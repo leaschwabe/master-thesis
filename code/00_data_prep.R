@@ -17,10 +17,15 @@ library(tibble)
 ##   efh_avg  = single-family houses
 ##   etw_avg  = apartments (condos)
 ## Primary outcome = a district-level COMPOSITE of efh & etw, using fixed 2011 dwelling-stock
-## weights (constructed below, right after the prices). Robustness = efh-only excluding Vienna
-## (co-equal identification check, cleanest of the composition/elasticity confound) and etw-only.
-## Baseline vs. robustness ordering to be finalised (see structure ss. 7.1-7.3). The composite
-## avoids excluding Vienna (its thin single-family market is down-weighted, apartments up-weighted).
+## weights (constructed below, right after the prices). Robustness = same composite outcome
+## estimated on the sample EXCLUDING Vienna (see structure ss. 7.3): tests whether Vienna
+## (all-inelastic, apartment-dominated) drives the result. The composite weights each district
+## by its own housing mix (Vienna districts are apartment-heavy, so etw dominates the composite
+## there; rural districts are house-heavy, so efh dominates).
+## Further robustness: re-estimate on efh-only and on etw-only outcomes (instead of the
+## composite) to check the result is not an artefact of the weighting/property-type mix.
+## VIENNA: the data supports Vienna at the individual-district level, so Viennese districts enter
+## the panel like any other district (no aggregation, no exclusion needed).
 
 prices <- read.csv("./data/RE_prices.csv", header = TRUE ,sep=";")
 
@@ -79,6 +84,32 @@ composite_weights <- cw %>%
   ) %>%
   select(district_id, district_name, w_house, w_apt, n_house, n_apt, n_tot) %>%
   arrange(district_id)
+
+# -----------------------------------------------------------------------------#
+
+# Building the composite price series (primary outcome, in LEVELS)
+## Merge the fixed 2011 weights onto the (balanced 116 x 36) price panel and build a weighted
+## composite price level per district-quarter:
+##   p_composite = w_house * efh_avg + w_apt * etw_avg   (per m^2, EUR)
+## The log-change / cumulative-outcome transformation ( y_{i,t+h} - y_{i,t-1} ) is deliberately
+## left for the panel/estimation script; here we only produce clean LEVEL series. We keep the
+## raw efh_avg / etw_avg columns as well so the efh-only and etw-only robustness specs draw from
+## the same object. Weights are time-invariant (2011), so cross-district composition is fixed and
+## only the underlying prices move over time.
+## Panel is balanced with no missing prices, so the composite is defined for every district-quarter.
+
+prices <- prices %>%
+  left_join(
+    composite_weights %>% select(district_id, w_house, w_apt),
+    by = "district_id"
+  ) %>%
+  mutate(
+    p_composite = w_house * efh_avg + w_apt * etw_avg
+  ) %>%
+  arrange(district_id, quarter)
+
+## Sanity flag: after the join, w_house/w_apt should be non-missing for every district.
+## If any are NA, a price district is missing from the weight file (check with an anti_join).
 
 # -----------------------------------------------------------------------------#
 
