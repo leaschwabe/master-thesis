@@ -77,3 +77,8 @@ rsconnect/
 *.pdf
 !thesis/Thesis_Schwabe.pdf
 !misc/Schwabe_ThesisProposal_20260215.pdf
+
+# Saved R data objects (named workspace/dataframe exports shared between scripts)
+*.RData
+*.rds
+*.Rds

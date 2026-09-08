@@ -1,4 +1,3 @@
-## Packages needed for Data cleaning ##
 
 library(dplyr)
 library(tidyr)
@@ -9,23 +8,20 @@ library(lubridate)
 library(stringr)
 library(tibble)
 
-# Loading endogenous variables: EFH, ETW, GST #
-## Loading dataset, renaming of id/name columns, transforming date correctly and sorting by district_id & quarter ##
-##
-## OUTCOME PLAN: RE_prices has three price measures:
-##   gst      = building land (Bauland) -> excluded from the housing outcome
+# =============================================================================#
+# 1. ENDOGENOUS VARIABLES - PRICES
+# -----------------------------------------------------------------------------#
+# - Price dimensions: EFH, ETW, GST
+# - Date transformation to yearqtr, sorted by district_id & quarter
+
+# - OUTCOME PLAN: prices has three price dimensions:
+##   gst      = building land (Bauland/Grundstuecke) -> excluded from the housing outcome
 ##   efh_avg  = single-family houses
 ##   etw_avg  = apartments (condos)
-## Primary outcome = a district-level COMPOSITE of efh & etw, using fixed 2011 dwelling-stock
-## weights (constructed below, right after the prices). Robustness = same composite outcome
-## estimated on the sample EXCLUDING Vienna (see structure ss. 7.3): tests whether Vienna
-## (all-inelastic, apartment-dominated) drives the result. The composite weights each district
-## by its own housing mix (Vienna districts are apartment-heavy, so etw dominates the composite
-## there; rural districts are house-heavy, so efh dominates).
-## Further robustness: re-estimate on efh-only and on etw-only outcomes (instead of the
-## composite) to check the result is not an artefact of the weighting/property-type mix.
-## VIENNA: the data supports Vienna at the individual-district level, so Viennese districts enter
-## the panel like any other district (no aggregation, no exclusion needed).
+
+# - Primary outcome: district-level composite of efh & etw, using (fixed) 2011 dwelling-stock weights
+# - Robustness (possibly): Composite outcome estimated on sample excl. Vienna; test whether Vienna drives the result
+# - Robustness (possibly): Re-estimate on efh/etw only to test whether results are artefact of weighting/property-type mix
 
 prices <- read.csv("./data/RE_prices.csv", header = TRUE ,sep=";")
 
@@ -46,29 +42,29 @@ prices <- prices %>%
   arrange(district_id, quarter)
 
 # -----------------------------------------------------------------------------#
+# 1.1 ENDOGENOUS VARIABLES - PRICES: DWELLING-STOCK WEIGHTS
+# -----------------------------------------------------------------------------#
+# - Composite outcome weights: (fixed) 2011 dwelling-stock shares (house vs. apartments)
+# - Source: Statistik Austria Gebaeude- und Wohnungszaehlung 2011
 
-# Composite outcome weights: fixed 2011 dwelling-stock shares (house vs. apartments)
-## Source: Statistik Austria Gebaeude- und Wohnungszaehlung 2011, per district.
-## The columns count DWELLINGS by the size of the building they sit in:
-##   w1     = dwellings in single-dwelling buildings
-##   w2     = dwellings in two-dwelling buildings
-##   w3_5   = dwellings in buildings with 3-5 dwellings
-##   w6_10  = dwellings in buildings with 6-10 dwellings
-##   w11_20 = dwellings in buildings with 11-20 dwellings
-##   w21p   = dwellings in buildings with 21+ dwellings
-## Dwelling counts (not building counts) are used because the price series are per-dwelling,
-## so the weight should reflect the number of dwellings of each type actually being priced.
-## HOUSE class = w1 + w2: single-dwelling plus two-dwelling buildings, the latter to capture
-## Doppelhaushaelften / duplexes, which behave like the owner-occupied "house" (efh) market.
-## APARTMENT class = w3_5 + w6_10 + w11_20 + w21p (condo/ETW-type stock).
-## (Robustness idea: move w2 into the apartment class to probe this classification choice.)
-## Weights are FIXED at 2011 (pre-sample) to keep them exogenous, mirroring the 2014
-## building-land logic. Used later (panel/estimation script) to build the composite outcome:
-##   y_composite = w_house * dlog(efh) + w_apt * dlog(etw).
+# - The columns count DWELLINGS (Wohneinheiten) by the type of building they're in:
+#   w1     = dwellings in single-dwelling buildings
+#   w2     = dwellings in two-dwelling buildings
+#   w3_5   = dwellings in buildings with 3-5 dwellings
+#   w6_10  = dwellings in buildings with 6-10 dwellings
+#   w11_20 = dwellings in buildings with 11-20 dwellings
+#   w21p   = dwellings in buildings with 21+ dwellings
+
+# - HOUSE (EFH) class: w1 + w2; single-dwelling plus two-dwelling buildings (captures
+#   Doppelhaushaelften / duplexes, which behave like the owner-occupied "house" (efh) market)
+# - APARTMENT (ETW) class: w3_5 + w6_10 + w11_20 + w21p (condo/ETW stock)
+
+# - Robustness idea: move w2 into the apartment class to probe this classification choice
+# - Weights are FIXED at 2011 (pre-sample) to keep them exogenous
+
 
 cw <- read.csv("./data/composite_weight_data.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
-## Drop the trailing source-note / blank rows automatically (content-based, idempotent).
 cw <- cw %>%
   filter(!is.na(suppressWarnings(as.integer(district_id))))
 
@@ -87,16 +83,10 @@ composite_weights <- cw %>%
 
 # -----------------------------------------------------------------------------#
 
-# Building the composite price series (primary outcome, in LEVELS)
-## Merge the fixed 2011 weights onto the (balanced 116 x 36) price panel and build a weighted
+# - Composite price series (primary outcome)
+## Merges the fixed 2011 weights onto the (balanced 116 x 36) price panel and builds a weighted
 ## composite price level per district-quarter:
-##   p_composite = w_house * efh_avg + w_apt * etw_avg   (per m^2, EUR)
-## The log-change / cumulative-outcome transformation ( y_{i,t+h} - y_{i,t-1} ) is deliberately
-## left for the panel/estimation script; here we only produce clean LEVEL series. We keep the
-## raw efh_avg / etw_avg columns as well so the efh-only and etw-only robustness specs draw from
-## the same object. Weights are time-invariant (2011), so cross-district composition is fixed and
-## only the underlying prices move over time.
-## Panel is balanced with no missing prices, so the composite is defined for every district-quarter.
+## p_composite = w_house * efh_avg + w_apt * etw_avg
 
 prices <- prices %>%
   left_join(
@@ -108,12 +98,23 @@ prices <- prices %>%
   ) %>%
   arrange(district_id, quarter)
 
-## Sanity flag: after the join, w_house/w_apt should be non-missing for every district.
-## If any are NA, a price district is missing from the weight file (check with an anti_join).
 
+# =============================================================================#
+# 2. EXOGENOUS VARIABLES - SHOCK (EAMPD)
 # -----------------------------------------------------------------------------#
+# - Construction of aggregate quarterly MP shock:
+# TODO (SIGN CONVENTION): OIS_20Y is the chosen primary instrument
+# - A negative value = downward revision of long-term rates (monetary EASING surprise)
+# - Because the outcome/interaction is coded on the raw signed sum, the expected sign of beta_h
+##  on (Shock x Inelastic) flips with this convention, Data + Empirical Strategy
+##  must chapters state the convention explicitly so the interpretation of beta_h is not reversed
+# - DE20Y/DE30Y are retained for robustness only
 
-# Loading the exogenous variables: (1) shock (EAMPD)
+# - shock_net_** = net sum of shocks per quarter
+# - shock_pos_** = sum of positive shocks per quarter
+# - shock_neg_** = sum of negative shocks per quarter 
+# - shock_abs_** = absolute sum of shocks per quarter 
+# - n_nonmiss_** = number of non-missing observations within a quarter (i.e. 3 is three event dates in a quarter and has three observed values)
 
 
 shock <- read.csv("./data/EAMPD_event.csv", header = TRUE, sep =";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
@@ -124,18 +125,6 @@ shock <- subset(
   select = c("X.date", "OIS_20Y", "DE20Y", "DE30Y")
 )
 
-### Construction of aggregate quarterly MP shock:
-  ## TODO (SIGN CONVENTION - lock before estimation): OIS_20Y is the chosen primary instrument.
-  ## A negative value = downward revision of long-term rates = monetary EASING surprise.
-  ## Because the outcome/interaction is coded on the raw signed sum, the expected sign of beta_h
-  ## on (Shock x Inelastic) flips with this convention. Make the Data + Empirical Strategy
-  ## chapters state the convention explicitly so the interpretation of beta_h is not reversed.
-  ## (DE20Y/DE30Y are retained for robustness only.)
-  ## shock_net_** = net sum of shocks per quarter, 
-  ## shock_pos_** = sum of positive shocks per quarter,
-  ## shock_neg_** = sum of negative shocks per quarter, 
-  ## shock_abs_** = absolute sum of shocks per quarter, 
-  ## n_nonmiss_** = number of non-missing observations within a quarter (i.e. 3 is three event dates in a quarter and has three observed values)
 
 shock_q <- shock %>%
   mutate(
@@ -180,9 +169,11 @@ shock_q <- shock_q %>%
   )
 
 # -----------------------------------------------------------------------------#
-
-#### Preliminary diagnostics of "cancellation" within a quarter i.e. if positive shocks offset negative ones and v.v. ####
-  ### ratio of net_shocks to abs_shocks i.e. if near one -> little offsetting of directional shocks, if near 0 -> strong offsetting of directional shocks
+# 2.1 EXOGENOUS VARIABLES - SHOCK (EAMPD), PRELIMINARY DIAGNOSTICS
+# -----------------------------------------------------------------------------#
+# - "cancellation" within a quarter i.e. if positive shocks offset negative ones and v.v.
+# - ratio of net_shocks to abs_shocks i.e. if near one -> little offsetting of directional shocks, 
+##  if near 0 -> strong offsetting of directional shocks
 
 shock_cancel_ratio <- shock_q %>%
   mutate(
@@ -195,15 +186,15 @@ shock_cancel_ratio <- shock_q %>%
   )
 
 
-## NOTE: shock_cancel_ratio is a DIAGNOSTIC only (it does not feed into the panel/estimation).
+## NOTE:
 ## A high mean cancellation (net << abs) means the quarterly NET sum discards within-quarter
 ## offsetting information. This motivates the "alternative shock aggregation" robustness check
-## (structure ss. 7.3): e.g. using only easing-direction shocks (shock_neg_*) as an alternative.
+## e.g. using only easing-direction shocks (shock_neg_*) as an alternative.
 
+# =============================================================================#
+# 3. EXOGENOUS VARIABLES - ELASTICITY DUMMY, BUILDING LAND RESERVES
 # -----------------------------------------------------------------------------#
-
-# Loading the exogenous variables: (2) Elasticity Dummy
-## Using building land reserves from 2014, as to predate the overall time frame (i.e. avoid endogenetiy) ##
+# - Using 2014 building land reserves, as to predate the overall time frame (i.e. avoid endogenetiy)
 
 bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
@@ -214,8 +205,11 @@ bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", f
   slice(1:(n()-2)) %>%
   mutate(district_id = as.integer(district_id))
 
-
-### Check if any districts are missing in prices and/or reserve data ###
+# -----------------------------------------------------------------------------#
+# 3.1 EXOGENOUS VARIABLES - BUILDING LAND RESERVES, PRELIMINARY DIAGNOSTICS
+# -----------------------------------------------------------------------------#
+# - Check if any districts are missing in prices and/or reserve data
+# - Inspect bl-reserves by federal state
 
 # id_prices <- prices %>%
 #  distinct(district_id)%>%
@@ -234,10 +228,9 @@ bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", f
 # id_bl %>%
 #  anti_join(id_prices, by = "district_id")
 
-# all id's in reserves are also in prices :)
+## NOTE:
+## all id's in reserves are also in prices
 
-
-## Inspecting bl-reserves by federal state: ##
 
 blr_diagnostics <- bl
 
@@ -260,7 +253,7 @@ blr_diagnostics <- blr_diagnostics %>%
     )
   )
 
-## Boxplots ##
+## Boxplots of bl-reserves by bundesland
 
 ggplot(blr_diagnostics, aes(x = bundesland, y = blr_14)) + 
   geom_boxplot() + 
@@ -286,7 +279,7 @@ ggplot(blr_woV, aes(x = bundesland, y = blr_14)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-## Histograms ##
+## Histograms of bl-reserves by bundesland
 
 ggplot(
   blr_woV, aes(x = blr_14)) +
@@ -295,10 +288,10 @@ ggplot(
     x = "Building Land Reserve by Bundesland (w/o Wien)",
     y = "Count") 
 
-
-### -> From the distributon of bl reserves, the inital best approach is to classify
-### the districts as elastic/inelastic from the bottom-quantile excl. Vienna.
-# Check again: Does 25% make sense?? 24 districts outside Vienna would be classified as inelastic, 69 as elastic!
+## NOTE:
+## From the distribution of bl reserves, the initial best approach is to classify
+## the districts as elastic/inelastic from the bottom-quantile excl. Vienna
+## 24 districts outside Vienna are classified as inelastic, 69 as elastic
 
 q25_th <- blr_woV %>%
   summarise(q25 = quantile(blr_14, 0.25, na.rm = TRUE)) %>%
@@ -309,7 +302,7 @@ bl <- bl %>%
     inelastic_dummy = ifelse(blr_14 <= q25_th, 1, 0)
   )
 
-## Inspecting the classification ##
+## Inspecting the classification
 
 bl %>%
   count(inelastic_dummy)
@@ -320,11 +313,10 @@ inelastic_districts <- bl  %>%
   select(district_id, district_name, blr_14)
 
 
+# =============================================================================#
+# 4. CONTROL VARIABLES - POPULATION
 # -----------------------------------------------------------------------------#
-
-# Loading Control Variables: (1) Population
-## Population at boq based on CRR (central residence register)
-## available quarterly by district
+# - Population at beginning of quarter, based on CRR (central residence register)
 
 c_pop <- read.csv("./data/cc_pop.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
@@ -356,7 +348,7 @@ c_pop_long <- c_pop %>%
   arrange(district_id, quarter)
 
 
-## Putting the population for Q1 2025 to Q2-Q4 (low fluctuations anyways, linear interpolation makes little sense) ##
+##  Q1 2025 population is carried to Q2-Q4 (low fluctuations, linear interpolation makes little sense)
 
 
 all_quarters <- tibble(
@@ -381,25 +373,26 @@ c_pop_long <- c_pop_long %>%
   ungroup()
 
 
+# =============================================================================#
+# 4. CONTROL VARIABLES - UNEMPLOYMENT
 # -----------------------------------------------------------------------------#
+# - Unemployment is available at the district level, on an annual basis.
+# - Annual figures are treated as quarterly (i.e. carried forward to the quarterly level)
 
-# Loading Control Variables: (2) Unemployment
-## Unemployment is available at the district level, on an annual basis.
-## Annual figures are treated as quarterly (i.e. fortschreiben auf Quartalsbasis).
-##
 ## Coverage: observed district-level data runs 2012-2024. District-level figures for 2025 are
 ## not yet available (as of Aug 2026), so 2025 Q1-Q4 are imputed by carrying forward each
-## district's 2024 value (fill down after the join). This mirrors the population treatment and
-## is defensible for a slow-moving annual series within the scope of this thesis.
+## district's 2024 value
 
 
 c_unemp <- read.csv("./data/C_unemp.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
-## Drop the trailing source-note / blank rows automatically (content-based, idempotent).
-## Real districts always have a numeric district_id; the "Quelle: ..." note and empty rows
-## become NA under as.integer() and are removed. Safe to rerun; never slices real data.
 c_unemp <- c_unemp %>%
   filter(!is.na(suppressWarnings(as.integer(district_id))))
+
+## Keep only the year columns actually used (2017-2024)
+
+c_unemp <- c_unemp %>%
+  select(district_id, district_name, num_range("X", 2017:2024))
 
 c_unemp_long <- c_unemp %>%
   mutate(
@@ -423,8 +416,7 @@ c_unemp_long <- c_unemp %>%
   arrange(district_id, quarter)
 
 
-# restricting to relevant sample, carrying forward 2024 values for 2025 (not available as of August 31st 2026)
-
+# restricting to relevant sample, carrying forward 2024 values for 2025
 
 c_unemp_long <- c_unemp_long %>%
   filter(
@@ -447,15 +439,14 @@ c_unemp_long <- c_unemp_long %>%
   ungroup()
 
 
+# =============================================================================#
+# 4. CONTROL VARIABLES - NET INCOME
 # -----------------------------------------------------------------------------#
-
-# Loading Control Variables: (1) Net Income
-# Annual Figures, Net Income of District
-# For now: I will construct net income per capita, using population from before (i.e. building yearly averages from the quarterly population data)
-# and dividing district net income by that average. 
-# NOTE: The source file (C_inc.csv) contains a 01.12.2023 column, but it is EMPTY for every
-# district. Observed income is therefore available only through 2022. Years 2023, 2024 and 2025
-# are deliberately extrapolated from observed 2022 totals using the nominal Tariflohnindex (see below).
+# - Annual Figures, Net Income of District
+# - Constructs net income per capita, using population from before (i.e. building yearly averages from the quarterly population data)
+##  and dividing district net income by that average. 
+##  NOTE: Years 2023, 2024 and 2025 are deliberately extrapolated from observed 2022 
+##  totals using the nominal Tariflohnindex (see below).
 
 c_inc <- read.csv("./data/C_inc.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
@@ -467,9 +458,6 @@ ordered_date_cols <- date_cols[
 
 c_inc <- c_inc[c(setdiff(names(c_inc), date_cols), ordered_date_cols)]
 
-## Drop the trailing source-note / blank rows automatically (content-based, idempotent).
-## Real districts always have a numeric district_id; the "Quelle: ..." note and empty rows
-## become NA under as.integer() and are removed. Safe to rerun; never slices real data.
 c_inc <- c_inc %>%
   filter(!is.na(suppressWarnings(as.integer(district_id)))) %>%
   mutate(
@@ -490,14 +478,13 @@ c_inc_long <- c_inc %>%
   select(district_id, district_name, year, income_total) %>%
   filter(
     year >= 2017,
-    year <= 2022,          # 2023 observed column is empty -> extrapolated below, not kept here
+    year <= 2022,          
     !is.na(income_total)
   ) %>%
   arrange(district_id, year)
 
 
 ## Adding extrapolated annual (district-level) income totals for 2023-2025:
-## 2023 is extrapolated as well (source column empty for all districts).
 ## Using the nominal Tariflohnindex (OeNB)
 
 wage_index <- tibble(
@@ -539,7 +526,7 @@ c_inc_q_total <- c_inc_annual_full %>%
   select(district_id, district_name, quarter, income_total, income_source) %>%
   arrange(district_id, quarter)
 
-## Merging with (quarterly) population and calculating per capita income:
+## Merging with (quarterly) population and calculating per capita income
 
 c_inc_q <- c_inc_q_total %>%
   left_join(
@@ -554,4 +541,29 @@ c_inc_q <- c_inc_q_total %>%
 
 
 
+# =============================================================================#
+# 5. SAVING CLEAN INPUTS
+# -----------------------------------------------------------------------------#
+# =============================================================================#
+##   prices             - balanced 116 x 36 price panel: efh_avg, etw_avg, gst,
+##                        p_composite (primary outcome, level), w_house, w_apt
+##   composite_weights  - fixed 2011 dwelling-stock weights (reference)
+##   shock_q            - quarterly aggregated ECB monetary policy shock
+##   shock_cancel_ratio - within-quarter cancellation diagnostic
+##   bl                 - building-land reserves with inelastic_dummy
+##   c_pop_long         - quarterly population
+##   c_unemp_long       - quarterly unemployment rate
+##   c_inc_q            - quarterly income per capita (+ log_income_pc)
+
+save(
+  prices,
+  composite_weights,
+  shock_q,
+  shock_cancel_ratio,
+  bl,
+  c_pop_long,
+  c_unemp_long,
+  c_inc_q,
+  file = "./data/00_prep_output.RData"
+)
 
