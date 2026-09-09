@@ -82,3 +82,12 @@ rsconnect/
 *.RData
 *.rds
 *.Rds
+
+# Image files
+*.png
+
+# Kiro workspace configuration (steering, hooks, etc.)
+.kiro/
+
+# Markdown files
+*.md
