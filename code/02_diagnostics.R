@@ -22,6 +22,10 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 
+# Shared thesis figure theme / palette / sizing (theme_thesis, scale_*_thesis,
+# var_label, ggsave_thesis). Used for the chapter-ready exports to thesis/charts.
+source("code/plot_theme.R")
+
 load("./data/01_panel.RData")
 load("./data/00_prep_output.RData")
 
@@ -30,6 +34,10 @@ FIG_DIR <- file.path(OUT_DIR, "figures")
 TAB_DIR <- file.path(OUT_DIR, "tables")
 dir.create(FIG_DIR, recursive = TRUE, showWarnings = FALSE)
 dir.create(TAB_DIR, recursive = TRUE, showWarnings = FALSE)
+
+# Chapter-ready figures (theme_thesis) are exported here for \includegraphics.
+THESIS_FIG_DIR <- "./thesis/charts"
+dir.create(THESIS_FIG_DIR, recursive = TRUE, showWarnings = FALSE)
 
 options(scipen = 6, dplyr.summarise.inform = FALSE)
 theme_set(theme_minimal(base_size = 11))
@@ -295,6 +303,22 @@ p_price <- ggplot(quarterly_prices, aes(quarter, index, colour = series)) + geom
        x = NULL, y = "Index", colour = NULL)
 save_plot("02_price_indexes_property_type", p_price)
 
+## Thesis export: readable series labels, thesis theme/palette, no in-chart title
+## (added in the LaTeX caption). Saved to thesis/charts at the 14 cm figure width.
+quarterly_prices_thesis <- quarterly_prices %>%
+  mutate(series = recode(series,
+                         Composite = "Composite",
+                         EFH = "House",
+                         ETW = "Apartment"),
+         series = factor(series, levels = c("Composite", "House", "Apartment")))
+p_price_thesis <- ggplot(quarterly_prices_thesis, aes(quarter, index, colour = series)) +
+  geom_line(linewidth = .9) +
+  scale_x_yearqtr(format = "%Y", n = 5) +
+  scale_colour_thesis() +
+  labs(x = NULL, y = "Index (Q1 2017 = 100)", colour = NULL) +
+  theme_thesis()
+ggsave_thesis(file.path(THESIS_FIG_DIR, "02_price_indexes_property_type.pdf"), p_price_thesis)
+
 group_prices <- panel_d %>% group_by(supply_group, quarter) %>%
   summarise(value = median(p_composite), .groups = "drop") %>% group_by(supply_group) %>%
   arrange(quarter) %>% mutate(index = 100 * value / first(value)) %>% ungroup()
@@ -425,6 +449,28 @@ p_components <- ggplot(shock_components, aes(quarter, value, fill = component)) 
   labs(title = "Signed within-quarter shock components", x = NULL, y = "Sum", fill = NULL)
 save_plot("10_shock_signed_components", p_components)
 
+## Thesis export: signed easing/tightening components as bars, with the quarterly
+## NET shock overlaid as a scatter (points connected by a thin line so the net
+## path is legible on top of the stacked signed bars). Net data comes from
+## shock_panel (one row per quarter). Fill uses two palette colours; the net
+## overlay is drawn in a dark neutral so it reads against both bar colours.
+shock_net_thesis <- shock_panel %>% select(quarter, net = shock_net_ois20y)
+p_components_thesis <- ggplot() +
+  geom_hline(yintercept = 0, colour = "grey50") +
+  geom_col(data = shock_components,
+           aes(quarter, value, fill = component),
+           position = "identity", alpha = .85, width = .18) +
+  geom_line(data = shock_net_thesis, aes(quarter, net),
+            colour = "grey25", linewidth = .4) +
+  geom_point(data = shock_net_thesis, aes(quarter, net, shape = "Net shock"),
+             colour = "grey15", size = 1.6) +
+  scale_x_yearqtr(format = "%Y", n = 5) +
+  scale_fill_thesis() +
+  scale_shape_manual(values = c("Net shock" = 16)) +
+  labs(x = NULL, y = "Quarterly shock sum (OIS 20Y)", fill = NULL, shape = NULL) +
+  theme_thesis()
+ggsave_thesis(file.path(THESIS_FIG_DIR, "10_shock_signed_components.pdf"), p_components_thesis)
+
 p_cancel <- ggplot(shock_panel, aes(quarter, cancel_ratio_ois20y)) +
   geom_line(linewidth = .8) + geom_point(aes(size = n_events), alpha = .75) +
   scale_y_continuous(limits = c(0, 1)) +
@@ -503,6 +549,42 @@ p_key_corr <- ggplot(cor_long(key_corr), aes(variable_1, variable_2, fill = corr
   coord_equal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = "Pairwise correlations of key variables", x = NULL, y = NULL, fill = "Correlation")
 save_plot("14_key_correlation_heatmap", p_key_corr, width = 10, height = 8)
+
+## Thesis export: readable axis labels (no raw variable names), thesis theme, and
+## a diverging fill scale kept for the correlation surface. Labels extend
+## var_label() with the change/interaction variables specific to this matrix.
+corr_labels <- c(
+  dQ_composite = "Composite price growth",
+  d_lincome    = "Income growth",
+  d_lpop       = "Population growth",
+  d_unemp      = "Unemployment change",
+  shock        = "Monetary policy shock",
+  shock_ease   = "Easing surprise",
+  shock_tight  = "Tightening surprise",
+  blr_14       = "Building-land reserve",
+  w_house      = "House weight",
+  shk_x_inel   = "Shock \u00d7 inelastic"
+)
+relabel_corr <- function(x) ifelse(is.na(corr_labels[x]), x, corr_labels[x])
+key_corr_long_thesis <- cor_long(key_corr) %>%
+  mutate(
+    variable_1 = factor(relabel_corr(variable_1), levels = unname(corr_labels[key_corr_vars])),
+    variable_2 = factor(relabel_corr(variable_2), levels = unname(corr_labels[key_corr_vars]))
+  )
+p_key_corr_thesis <- ggplot(key_corr_long_thesis,
+                            aes(variable_1, variable_2, fill = correlation)) +
+  geom_tile(colour = "white", linewidth = .3) +
+  geom_text(aes(label = sprintf("%.2f", correlation)), size = 2.4) +
+  scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#b2182b", limits = c(-1, 1)) +
+  coord_equal() +
+  labs(x = NULL, y = NULL, fill = "Correlation") +
+  theme_thesis() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(),
+        legend.position = "right")
+## Square heatmap: use a taller output than the default single-plot height.
+ggsave_thesis(file.path(THESIS_FIG_DIR, "14_key_correlation_heatmap.pdf"),
+              p_key_corr_thesis, height = 13)
 
 lag_corr <- cor(panel_d[, control_lags], use = "pairwise.complete.obs")
 lag_corr_table <- data.frame(variable = rownames(lag_corr), round(lag_corr, 4), check.names = FALSE)
