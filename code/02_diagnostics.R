@@ -313,7 +313,7 @@ quarterly_prices_thesis <- quarterly_prices %>%
          series = factor(series, levels = c("Composite", "House", "Apartment")))
 p_price_thesis <- ggplot(quarterly_prices_thesis, aes(quarter, index, colour = series)) +
   geom_line(linewidth = .9) +
-  scale_x_yearqtr(format = "%Y", n = 5) +
+  scale_x_quarter() +
   scale_colour_thesis() +
   labs(x = NULL, y = "Index (Q1 2017 = 100)", colour = NULL) +
   theme_thesis()
@@ -450,21 +450,19 @@ p_components <- ggplot(shock_components, aes(quarter, value, fill = component)) 
 save_plot("10_shock_signed_components", p_components)
 
 ## Thesis export: signed easing/tightening components as bars, with the quarterly
-## NET shock overlaid as a scatter (points connected by a thin line so the net
-## path is legible on top of the stacked signed bars). Net data comes from
-## shock_panel (one row per quarter). Fill uses two palette colours; the net
-## overlay is drawn in a dark neutral so it reads against both bar colours.
+## NET shock overlaid as a scatter on top of the stacked signed bars. Net data
+## comes from shock_panel (one row per quarter). Fill uses two palette colours;
+## the net overlay is drawn as points in a dark neutral so it reads against both
+## bar colours (no connecting line, the points are not a continuous series).
 shock_net_thesis <- shock_panel %>% select(quarter, net = shock_net_ois20y)
 p_components_thesis <- ggplot() +
   geom_hline(yintercept = 0, colour = "grey50") +
   geom_col(data = shock_components,
            aes(quarter, value, fill = component),
            position = "identity", alpha = .85, width = .18) +
-  geom_line(data = shock_net_thesis, aes(quarter, net),
-            colour = "grey25", linewidth = .4) +
   geom_point(data = shock_net_thesis, aes(quarter, net, shape = "Net shock"),
              colour = "grey15", size = 1.6) +
-  scale_x_yearqtr(format = "%Y", n = 5) +
+  scale_x_quarter() +
   scale_fill_thesis() +
   scale_shape_manual(values = c("Net shock" = 16)) +
   labs(x = NULL, y = "Quarterly shock sum (OIS 20Y)", fill = NULL, shape = NULL) +
@@ -575,7 +573,7 @@ p_key_corr_thesis <- ggplot(key_corr_long_thesis,
                             aes(variable_1, variable_2, fill = correlation)) +
   geom_tile(colour = "white", linewidth = .3) +
   geom_text(aes(label = sprintf("%.2f", correlation)), size = 2.4) +
-  scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#b2182b", limits = c(-1, 1)) +
+  scale_fill_thesis_c(limits = c(-1, 1), midpoint = 0) +
   coord_equal() +
   labs(x = NULL, y = NULL, fill = "Correlation") +
   theme_thesis() +

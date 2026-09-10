@@ -44,13 +44,29 @@ if (requireNamespace("showtext", quietly = TRUE) &&
 
 # --- Colour palette: PrettyCols "Bold" (5 qualitative colours) --------------
 ## Source: PrettyCols::prettycols("Bold"). Hardcoded to avoid the dependency.
+## Ordered green, magenta, blue, orange, purple so that the first two colours
+## (green, magenta) are the primary pair used for the elastic/inelastic split.
 thesis_palette <- c(
+  "#679c35",  # green   (primary 1: elastic)
+  "#cd1076",  # magenta (primary 2: inelastic)
   "#6497b1",  # blue
-  "#6a359c",  # purple
   "#FFB04F",  # orange
-  "#679c35",  # green
-  "#cd1076"   # magenta
+  "#6a359c"   # purple
 )
+
+## Named primary colours for the supply-elasticity distinction. Use these when a
+## chart maps specifically to elastic vs. inelastic so the pairing is explicit.
+thesis_primary <- c(
+  elastic   = "#679c35",  # green
+  inelastic = "#cd1076"   # magenta
+)
+
+## Endpoints for a continuous (diverging / sequential) scale built from the two
+## primary colours, e.g. the correlation heatmap. Magenta = high, green = low,
+## with a light neutral midpoint so zero reads as near-white.
+thesis_grad_low  <- "#679c35"  # green   (low / negative end)
+thesis_grad_mid  <- "#f2f2f2"  # neutral light grey (midpoint)
+thesis_grad_high <- "#cd1076"  # magenta (high / positive end)
 
 scale_colour_thesis <- function(...) {
   ggplot2::scale_colour_manual(values = thesis_palette, ...)
@@ -59,6 +75,33 @@ scale_color_thesis <- scale_colour_thesis
 scale_fill_thesis <- function(...) {
   ggplot2::scale_fill_manual(values = thesis_palette, ...)
 }
+
+## Continuous fill scale in the primary colours. Diverging by default (for
+## correlations centred at 0); set `diverging = FALSE` for a sequential
+## green-to-magenta ramp. `limits`/`midpoint` follow ggplot2 defaults.
+scale_fill_thesis_c <- function(..., diverging = TRUE, midpoint = 0) {
+  if (diverging) {
+    ggplot2::scale_fill_gradient2(
+      low = thesis_grad_low, mid = thesis_grad_mid, high = thesis_grad_high,
+      midpoint = midpoint, ...
+    )
+  } else {
+    ggplot2::scale_fill_gradient(low = thesis_grad_low, high = thesis_grad_high, ...)
+  }
+}
+
+## Continuous colour scale counterpart (same colours, for point/line colour).
+scale_colour_thesis_c <- function(..., diverging = TRUE, midpoint = 0) {
+  if (diverging) {
+    ggplot2::scale_colour_gradient2(
+      low = thesis_grad_low, mid = thesis_grad_mid, high = thesis_grad_high,
+      midpoint = midpoint, ...
+    )
+  } else {
+    ggplot2::scale_colour_gradient(low = thesis_grad_low, high = thesis_grad_high, ...)
+  }
+}
+scale_color_thesis_c <- scale_colour_thesis_c
 
 # --- Theme ------------------------------------------------------------------
 ## Base size 11pt: at the 14cm output width this sits just below the 12pt body
@@ -78,6 +121,9 @@ theme_thesis <- function(base_size = 11, base_family = .thesis_font) {
       strip.text       = ggplot2::element_text(size = base_size, face = "plain"),
       panel.grid.minor = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_line(linewidth = 0.3, colour = "grey88"),
+      # Border around the plotting area (like theme_light). fill = NA keeps the
+      # panel transparent so gridlines/data remain visible.
+      panel.border     = ggplot2::element_rect(colour = "grey70", fill = NA, linewidth = 0.4),
       plot.margin      = ggplot2::margin(4, 6, 4, 4)
     )
 }
@@ -109,6 +155,33 @@ theme_thesis <- function(base_size = 11, base_family = .thesis_font) {
 var_label <- function(x) {
   out <- unname(.thesis_labels[x])
   ifelse(is.na(out), x, out)  # fall back to the raw name if unmapped
+}
+
+# --- Quarterly x-axis (yearqtr) ---------------------------------------------
+## scale_x_yearqtr(format = "%Y") only prints the year (e.g. "2017"). This
+## helper labels ticks as quarters ("Q1 2017", "Q4 2021"). By default it shows
+## every 4th quarter (one tick per year) to avoid clutter at the 14cm width;
+## pass by = 0.25 for every quarter, or n for an approximate tick count.
+## NOTE: scale_x_yearqtr() is provided by the zoo package (not ggplot2), so zoo
+## must be attached (library(zoo)) when a chart uses this helper, as the
+## diagnostics script already does.
+scale_x_quarter <- function(by = 1, n = NULL, ...) {
+  fmt <- function(z) paste0("Q", zoo::format.yearqtr(z, "%q"), " ",
+                            zoo::format.yearqtr(z, "%Y"))
+  if (is.null(n)) {
+    zoo::scale_x_yearqtr(labels = fmt, breaks = function(lims) {
+      lo <- as.numeric(lims[1]); hi <- as.numeric(lims[2])
+      # For yearly (or coarser) spacing, anchor ticks on Q1 (whole years) so
+      # labels read Q1 2017, Q1 2018, ... rather than starting on Q4. For
+      # sub-annual spacing (by < 1), step from the first quarter in range.
+      start <- if (by >= 1) ceiling(lo) else zoo::as.yearqtr(ceiling(lo * 4) / 4)
+      seq(from = zoo::as.yearqtr(start),
+          to   = zoo::as.yearqtr(floor(hi * 4) / 4),
+          by   = by)
+    }, ...)
+  } else {
+    zoo::scale_x_yearqtr(labels = fmt, n = n, ...)
+  }
 }
 
 # --- Saving: sized to the .tex figure width (14 cm) -------------------------
