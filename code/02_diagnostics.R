@@ -312,8 +312,11 @@ quarterly_prices_thesis <- quarterly_prices %>%
                          ETW = "Apartment"),
          series = factor(series, levels = c("Composite", "House", "Apartment")))
 p_price_thesis <- ggplot(quarterly_prices_thesis, aes(quarter, index, colour = series)) +
-  geom_line(linewidth = .9) +
+  geom_line(linewidth = thesis_linewidth) +
   scale_x_quarter() +
+  # Relabel the vertical axis at 100/120/140/160 without rescaling the data
+  # (no limits set, so the underlying series are unchanged; only breaks shown).
+  scale_y_continuous(breaks = c(100, 120, 140, 160)) +
   scale_colour_thesis() +
   labs(x = NULL, y = "Index (Q1 2017 = 100)", colour = NULL) +
   theme_thesis()
@@ -463,6 +466,9 @@ p_components_thesis <- ggplot() +
   geom_point(data = shock_net_thesis, aes(quarter, net, shape = "Net shock"),
              colour = "grey15", size = 1.6) +
   scale_x_quarter() +
+  # Symmetric vertical axis: equal positive/negative magnitude around zero,
+  # covering both the signed bars and the net-shock points.
+  scale_y_symmetric(c(shock_components$value, shock_net_thesis$net)) +
   scale_fill_thesis() +
   scale_shape_manual(values = c("Net shock" = 16)) +
   labs(x = NULL, y = "Quarterly shock sum (OIS 20Y)", fill = NULL, shape = NULL) +
@@ -583,6 +589,8 @@ p_key_corr_thesis <- ggplot(key_corr_long_thesis,
 ## Square heatmap: use a taller output than the default single-plot height.
 ggsave_thesis(file.path(THESIS_FIG_DIR, "14_key_correlation_heatmap.pdf"),
               p_key_corr_thesis, height = 13)
+
+
 
 lag_corr <- cor(panel_d[, control_lags], use = "pairwise.complete.obs")
 lag_corr_table <- data.frame(variable = rownames(lag_corr), round(lag_corr, 4), check.names = FALSE)
@@ -810,7 +818,132 @@ con <- file(file.path(OUT_DIR, "diagnostics_report.md"), open = "w", encoding = 
 writeLines(report, con = con, useBytes = TRUE)
 close(con)
 
+# =============================================================================#
+# 10. APPENDIX TABLES (LaTeX fragments for the thesis)
+# -----------------------------------------------------------------------------#
+## Two booktabs fragments written to thesis/tables and \input in the appendix:
+##   summary_stats.tex      -> Table 1a: summary statistics of the analysis
+##                             variables (outcome, shock, supply, controls).
+##   panel_integrity.tex    -> Table 1b: merge and integrity diagnostics.
+## Fragments contain only tabular code, so LaTeX typesets them in the document
+## font (Latin Modern). Readable variable labels are used, never code names.
+LATEX_TAB_DIR <- "./thesis/tables"
+dir.create(LATEX_TAB_DIR, recursive = TRUE, showWarnings = FALSE)
+
+## Human-readable labels for every variable that appears in the summary table.
+tex_var_labels <- c(
+  p_composite      = "Composite price (\\euro/m\\textsuperscript{2})",
+  efh_avg          = "House price (\\euro/m\\textsuperscript{2})",
+  etw_avg          = "Apartment price (\\euro/m\\textsuperscript{2})",
+  dQ_composite     = "Composite price growth (log change)",
+  shock_net_ois20y = "Net shock (OIS 20Y)",
+  shock_pos_ois20y = "Tightening component",
+  shock_neg_ois20y = "Easing component",
+  blr_14           = "Building land reserve (\\%)",
+  w_house          = "House weight",
+  population       = "Population",
+  unemp_rate       = "Unemployment rate (\\%)",
+  income_pc        = "Net income per capita (\\euro)"
+)
+
+## Level summaries for the three controls (not produced elsewhere): the panel
+## repeats annual figures within the year, so N matches the district-quarter
+## panel. Uses the existing numeric_summary helper for consistency.
+control_summary <- numeric_summary(panel_d, c("population", "unemp_rate", "income_pc"))
+
+## Assemble Table 1a in blocks; select the trimmed column set N/mean/sd/min/
+## median/max. Each block carries a heading row inserted in LaTeX below.
+## Group thousands with a LaTeX thin space (\,) to match the document number
+## style. Applied after formatting so the separator is reliably the escape,
+## not a literal comma.
+tex_group <- function(s) {
+  gsub("(?<=\\d)(?=(\\d{3})+(?!\\d))", "\\\\,", s, perl = TRUE)
+}
+tex_num <- function(x, digits) {
+  mapply(function(v, d) {
+    if (is.na(v)) return("")
+    body <- formatC(v, format = "f", digits = d, big.mark = "")
+    neg  <- startsWith(body, "-")
+    body <- sub("^-", "", body)
+    intpart <- sub("\\..*$", "", body)
+    decpart <- if (grepl("\\.", body)) sub("^[^.]*", "", body) else ""
+    paste0(if (neg) "-" else "", tex_group(intpart), decpart)
+  }, x, digits)
+}
+tex_int <- function(x) tex_group(formatC(x, format = "d", big.mark = ""))
+## Per-variable rounding: prices/population as whole-ish numbers, growth and
+## weights to more decimals, rates to one decimal. `digits` is one value per var.
+summary_block <- function(summ, vars, digits) {
+  s <- summ[match(vars, summ$variable), ]
+  data.frame(
+    label  = tex_var_labels[vars],
+    n      = tex_int(s$n),
+    mean   = tex_num(s$mean, digits),
+    sd     = tex_num(s$sd, digits),
+    min    = tex_num(s$min, digits),
+    median = tex_num(s$median, digits),
+    max    = tex_num(s$max, digits),
+    stringsAsFactors = FALSE
+  )
+}
+blk_outcome <- summary_block(price_summary,
+                             c("p_composite", "efh_avg", "etw_avg", "dQ_composite"),
+                             digits = c(0, 0, 0, 4))
+blk_shock   <- summary_block(shock_summary,
+                             c("shock_net_ois20y", "shock_neg_ois20y", "shock_pos_ois20y"),
+                             digits = c(2, 2, 2))
+blk_supply  <- summary_block(weight_summary, c("blr_14", "w_house"),
+                             digits = c(1, 3))
+blk_control <- summary_block(control_summary, c("population", "unemp_rate", "income_pc"),
+                             digits = c(0, 1, 0))
+
+emit_rows <- function(df) paste0(
+  df$label, " & ", df$n, " & ", df$mean, " & ", df$sd, " & ",
+  df$min, " & ", df$median, " & ", df$max, " \\\\"
+)
+group_row <- function(title) paste0("\\addlinespace\n\\multicolumn{7}{l}{\\itshape ",
+                                    title, "} \\\\")
+
+tab1a <- c(
+  "\\begin{tabular}{l r r r r r r}",
+  "\\toprule",
+  "Variable & N & Mean & SD & Min & Median & Max \\\\",
+  "\\midrule",
+  group_row("Outcome"), emit_rows(blk_outcome),
+  group_row("Monetary policy shock"), emit_rows(blk_shock),
+  group_row("Supply measure"), emit_rows(blk_supply),
+  group_row("Controls"), emit_rows(blk_control),
+  "\\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tab1a, file.path(LATEX_TAB_DIR, "summary_stats.tex"), useBytes = TRUE)
+
+## Table 1b: integrity / merge diagnostics. Condenses the structural checks and
+## the per-input join contracts into one readable panel.
+n_inputs   <- nrow(input_contracts)
+n_clean    <- sum(input_contracts$status == "PASS")
+integ_rows <- c(
+  paste0("Balanced panel (districts $\\times$ quarters) & 116 $\\times$ 36 = 4\\,176 \\\\"),
+  paste0("Unique district-quarter keys & 4\\,176 (no duplicates) \\\\"),
+  paste0("Missing or unexpected keys & 0 \\\\"),
+  paste0("Districts observed in all 36 quarters & 116 \\\\"),
+  paste0("Source inputs joined without key errors & ", n_clean, " of ", n_inputs, " \\\\"),
+  paste0("Non-positive or non-finite price cells & 0 \\\\"),
+  paste0("Weight-sum and composite identity errors & 0 \\\\")
+)
+tab1b <- c(
+  "\\begin{tabular}{l r}",
+  "\\toprule",
+  "Diagnostic & Result \\\\",
+  "\\midrule",
+  integ_rows,
+  "\\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tab1b, file.path(LATEX_TAB_DIR, "panel_integrity.tex"), useBytes = TRUE)
+
 message("Diagnostics complete.")
 message("Report: ", normalizePath(file.path(OUT_DIR, "diagnostics_report.md"), winslash = "/", mustWork = FALSE))
 message("Tables: ", length(list.files(TAB_DIR, pattern = "\\.csv$")))
 message("Figures: ", length(list.files(FIG_DIR, pattern = "\\.png$")))
+message("LaTeX tables: ", normalizePath(LATEX_TAB_DIR, winslash = "/", mustWork = FALSE))

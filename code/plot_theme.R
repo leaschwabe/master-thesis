@@ -68,6 +68,10 @@ thesis_grad_low  <- "#679c35"  # green   (low / negative end)
 thesis_grad_mid  <- "#f2f2f2"  # neutral light grey (midpoint)
 thesis_grad_high <- "#cd1076"  # magenta (high / positive end)
 
+## Default line width for line charts. Kept thin so series stay legible at the
+## 14cm figure width. Reference in geom_line(linewidth = thesis_linewidth).
+thesis_linewidth <- 0.6
+
 scale_colour_thesis <- function(...) {
   ggplot2::scale_colour_manual(values = thesis_palette, ...)
 }
@@ -107,19 +111,28 @@ scale_color_thesis_c <- scale_colour_thesis_c
 ## Base size 11pt: at the 14cm output width this sits just below the 12pt body
 ## text, the usual convention for figure text. No title/subtitle (plot.title
 ## and plot.subtitle are blanked; add them in the LaTeX caption instead).
-theme_thesis <- function(base_size = 11, base_family = .thesis_font) {
+theme_thesis <- function(base_size = 9, base_family = .thesis_font) {
   ggplot2::theme_minimal(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
       plot.title       = ggplot2::element_blank(),
       plot.subtitle    = ggplot2::element_blank(),
       plot.caption     = ggplot2::element_blank(),
       axis.title       = ggplot2::element_text(size = base_size),
+      # Push the axis titles away from the tick labels so they do not crowd the
+      # axis (extra right margin on the y-title, top margin on the x-title).
+      axis.title.y     = ggplot2::element_text(margin = ggplot2::margin(r = 8)),
+      axis.title.x     = ggplot2::element_text(margin = ggplot2::margin(t = 6)),
       axis.text        = ggplot2::element_text(size = base_size - 1, colour = "grey20"),
+      # Angle the x-axis tick labels so quarterly labels (Q1 2017, ...) remain
+      # legible instead of overlapping horizontally.
+      axis.text.x      = ggplot2::element_text(angle = 45, hjust = 1),
       legend.title     = ggplot2::element_text(size = base_size),
       legend.text      = ggplot2::element_text(size = base_size - 1),
       legend.position  = "bottom",
       strip.text       = ggplot2::element_text(size = base_size, face = "plain"),
-      panel.grid.minor = ggplot2::element_blank(),
+      # Minor gridlines re-enabled (fainter than the major lines) so minor axis
+      # breaks are visible.
+      panel.grid.minor = ggplot2::element_line(linewidth = 0.2, colour = "grey93"),
       panel.grid.major = ggplot2::element_line(linewidth = 0.3, colour = "grey88"),
       # Border around the plotting area (like theme_light). fill = NA keeps the
       # panel transparent so gridlines/data remain visible.
@@ -182,6 +195,24 @@ scale_x_quarter <- function(by = 1, n = NULL, ...) {
   } else {
     zoo::scale_x_yearqtr(labels = fmt, n = n, ...)
   }
+}
+
+# --- Symmetric numeric y-axis around zero -----------------------------------
+## For charts with a numbered vertical axis that spans positive and negative
+## values (e.g. the signed shock components), make the axis symmetric so the
+## min and max have equal magnitude, for example -10 / +10. Pass the values that
+## the axis must cover; the helper rounds the largest absolute value up to a
+## "nice" number and returns a scale_y_continuous with matching minor breaks.
+##   + scale_y_symmetric(c(shock_components$value, shock_net_thesis$net))
+scale_y_symmetric <- function(values, n_major = 5, ...) {
+  m <- max(abs(values), na.rm = TRUE)
+  if (!is.finite(m) || m == 0) m <- 1
+  step  <- pretty(c(-m, m), n = n_major)
+  lim   <- max(abs(step))
+  major <- seq(-lim, lim, by = step[2] - step[1])
+  minor <- seq(-lim, lim, by = (step[2] - step[1]) / 2)
+  ggplot2::scale_y_continuous(limits = c(-lim, lim), breaks = major,
+                              minor_breaks = minor, ...)
 }
 
 # --- Saving: sized to the .tex figure width (14 cm) -------------------------
