@@ -822,9 +822,11 @@ close(con)
 # 10. APPENDIX TABLES (LaTeX fragments for the thesis)
 # -----------------------------------------------------------------------------#
 ## Two booktabs fragments written to thesis/tables and \input in the appendix:
-##   summary_stats.tex      -> Table 1a: summary statistics of the analysis
-##                             variables (outcome, shock, supply, controls).
-##   panel_integrity.tex    -> Table 1b: merge and integrity diagnostics.
+##   summary_stats.tex        -> Table 1a: summary statistics of the analysis
+##                               variables (outcome, shock, supply, controls).
+##   panel_integrity.tex      -> Table 1b: merge and integrity diagnostics.
+##   residual_dependence.tex  -> Table 1c: two-way-FE residual dependence by
+##                               horizon (motivates the standard-error choice).
 ## Fragments contain only tabular code, so LaTeX typesets them in the document
 ## font (Latin Modern). Readable variable labels are used, never code names.
 LATEX_TAB_DIR <- "./thesis/tables"
@@ -941,6 +943,27 @@ tab1b <- c(
   "\\end{tabular}"
 )
 writeLines(tab1b, file.path(LATEX_TAB_DIR, "panel_integrity.tex"), useBytes = TRUE)
+
+## Table 1c: residual dependence of the two-way fixed-effects specification at
+## selected horizons, motivating the treatment of standard errors in the
+## empirical strategy. Built from fe_diagnostics (horizons 0, 4, 8, 12).
+fe_tab <- fe_diagnostics[fe_diagnostics$horizon %in% c(0, 4, 8, 12), ]
+fe_rows <- paste0(
+  fe_tab$horizon, " & ",
+  formatC(fe_tab$residual_ar1, format = "f", digits = 2), " & ",
+  formatC(fe_tab$mean_absolute_pairwise_correlation, format = "f", digits = 2), " & ",
+  formatC(fe_tab$max_absolute_pairwise_correlation, format = "f", digits = 2), " \\\\"
+)
+tab1c <- c(
+  "\\begin{tabular}{r r r r}",
+  "\\toprule",
+  "Horizon $h$ & Residual AR(1) & Mean $|\\rho|$ & Max $|\\rho|$ \\\\",
+  "\\midrule",
+  fe_rows,
+  "\\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tab1c, file.path(LATEX_TAB_DIR, "residual_dependence.tex"), useBytes = TRUE)
 
 message("Diagnostics complete.")
 message("Report: ", normalizePath(file.path(OUT_DIR, "diagnostics_report.md"), winslash = "/", mustWork = FALSE))
