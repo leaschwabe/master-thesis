@@ -2,7 +2,7 @@
 # plot_theme.R - Shared ggplot2 theme, palette, sizing, and labels
 #
 # Sourced by the plotting/diagnostics scripts to keep every figure consistent
-# with the thesis (thesis/Thesis_Schwabe.tex). Rules enforced here:
+# with the thesis. Rules enforced here:
 #   - Font matches the .tex document (Latin Modern / lmodern, 12pt A4).
 #   - No in-chart title or subtitle (added in LaTeX captions instead).
 #   - No raw variable names in charts (use var_label() for readable labels).
