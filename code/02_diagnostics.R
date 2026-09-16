@@ -141,6 +141,37 @@ pooled_acf <- function(data, variable, max_lag = 4L) {
   }))
 }
 
+## Pooled within-district partial autocorrelation (pACF).
+## For each lag k, the partial autocorrelation is the coefficient on the k-th lag
+## in a within-district AR(k) regression of the series on its first k own lags.
+## The lags are built inside each district (dplyr::lag after grouping) so they
+## never cross a district boundary, then the districts are stacked and a single
+## pooled OLS is run per k. District fixed effects (factor(district_id)) are
+## included so the estimate reflects within-district dynamics, matching the
+## "pooling the within-district changes" reading used for the ACF above.
+## Returns, per lag, the pACF value and the balanced n used for that regression.
+pooled_pacf <- function(data, variable, max_lag = 4L) {
+  # Build all needed lag columns once, within district, so lags never cross a
+  # district boundary and every lag column is row-aligned with x.
+  lag_frame <- data %>% arrange(district_id, quarter) %>% group_by(district_id) %>%
+    transmute(x = .data[[variable]])
+  for (j in seq_len(max_lag)) {
+    lag_frame <- lag_frame %>% mutate(!!paste0("x_lag", j) := dplyr::lag(x, j))
+  }
+  lag_frame <- ungroup(lag_frame)
+
+  bind_rows(lapply(seq_len(max_lag), function(k) {
+    lag_cols <- paste0("x_lag", seq_len(k))
+    sub <- lag_frame[stats::complete.cases(lag_frame[, c("x", lag_cols)]), ]
+    form <- stats::as.formula(
+      paste("x ~", paste(lag_cols, collapse = " + "), "+ factor(district_id)"))
+    fit <- stats::lm(form, data = sub)
+    tibble(variable = variable, lag = k,
+           correlation = unname(coef(fit)[paste0("x_lag", k)]),
+           n_pairs = nrow(sub))
+  }))
+}
+
 # -----------------------------------------------------------------------------#
 # Diagnostic-only labels and flags
 # -----------------------------------------------------------------------------#
@@ -346,6 +377,42 @@ p_acf <- ggplot(acf_table, aes(factor(lag), correlation, fill = variable)) +
   geom_col(position = "dodge") + geom_hline(yintercept = 0, colour = "grey40") +
   labs(title = "Pooled within-district autocorrelation", x = "Lag (quarters)", y = "Correlation", fill = NULL)
 save_plot("05_autocorrelation", p_acf)
+
+## -----------------------------------------------------------------------------#
+## Thesis export: ACF and pACF of quarterly composite price growth (dQ_composite)
+## The chart motivates the four price-momentum control lags in Chapter 4.1. ACF
+## conveys the persistence (momentum) of price growth; pACF isolates the extra
+## content of each further lag, which is the lag-order-selection diagnostic. Both
+## panels are shown to lag 8 so the decay past lag 4 is visible. The dashed lines
+## are the approximate white-noise significance band, +/- 1.96 / sqrt(n), using
+## the balanced n of the pACF regressions. It is approximate because pooled panel
+## residuals carry cross-sectional dependence not captured by the iid band.
+## Kept self-contained so it survives a later cleanup of this script.
+acf_pacf_lags <- 8L
+acf_dq  <- pooled_acf(panel_d,  "dQ_composite", acf_pacf_lags) %>% mutate(kind = "ACF")
+pacf_dq <- pooled_pacf(panel_d, "dQ_composite", acf_pacf_lags) %>% mutate(kind = "pACF")
+acf_pacf_dq <- bind_rows(acf_dq, pacf_dq) %>%
+  mutate(kind = factor(kind, levels = c("ACF", "pACF")))
+# Significance band from the smallest (most conservative) n across displayed lags.
+acf_pacf_band <- 1.96 / sqrt(min(acf_pacf_dq$n_pairs))
+save_table("06b_acf_pacf_dQ_composite",
+           acf_pacf_dq %>% select(kind, lag, correlation, n_pairs) %>%
+             mutate(sig_band = acf_pacf_band))
+
+p_acf_pacf_thesis <- ggplot(acf_pacf_dq, aes(factor(lag), correlation)) +
+  geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.3) +
+  geom_hline(yintercept =  acf_pacf_band, linetype = 2, colour = "grey35", linewidth = 0.3) +
+  geom_hline(yintercept = -acf_pacf_band, linetype = 2, colour = "grey35", linewidth = 0.3) +
+  geom_col(aes(fill = kind), width = 0.65) +
+  facet_wrap(~kind, nrow = 1) +
+  scale_fill_thesis() +
+  guides(fill = "none") +
+  labs(x = "Lag (quarters)", y = "Correlation") +
+  theme_thesis() +
+  # Integer lag labels read better horizontally than at the theme's 45 degrees.
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5))
+ggsave_thesis(file.path(THESIS_FIG_DIR, "05_acf_pacf_composite_growth.pdf"),
+              p_acf_pacf_thesis, height = 7)
 
 # -----------------------------------------------------------------------------#
 # 3. Composite weights and supply classification

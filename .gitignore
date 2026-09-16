@@ -52,6 +52,14 @@ rsconnect/
 *.csv
 .positai
 
+# Excel files
+*.xlsx
+*.xls
+*.xlsm
+*.xlsb
+~$*.xlsx
+~$*.xls
+
 # LaTeX build artifacts
 *.aux
 *.log
