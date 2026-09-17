@@ -215,6 +215,67 @@ scale_y_symmetric <- function(values, n_major = 5, ...) {
                               minor_breaks = minor, ...)
 }
 
+# --- Impulse-response (local projection) charts -----------------------------
+## Integer horizon x-axis (0, 1, ..., H). Unlike scale_x_quarter this labels
+## whole quarters-ahead and, since the labels are single integers, overrides the
+## theme's 45-degree tick angle back to horizontal. Use for every IRF chart.
+scale_x_horizon <- function(h_max = 12, by = 2, ...) {
+  ggplot2::scale_x_continuous(breaks = seq(0, h_max, by = by),
+                              minor_breaks = 0:h_max, ...)
+}
+
+## Standard IRF layers: a zero reference line, a shaded confidence ribbon, and
+## the point-estimate line with markers. Expects a data frame with columns
+## `horizon`, `coef`, `ci_lo`, `ci_hi`. `colour` sets the line/ribbon hue (a
+## single thesis-palette colour); the ribbon is the same hue at low alpha.
+## Returns a list of layers, so it composes with ggplot(...) + geom_irf(df).
+## For multi-series IRFs (e.g. ease vs. tight) map colour inside aes() and use
+## the scale_*_thesis scales instead of this single-series helper.
+geom_irf <- function(df, colour = thesis_primary[["inelastic"]],
+                     ribbon_alpha = 0.18, linewidth = thesis_linewidth) {
+  list(
+    ggplot2::geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.3),
+    ggplot2::geom_ribbon(data = df,
+      ggplot2::aes(x = horizon, ymin = ci_lo, ymax = ci_hi),
+      fill = colour, alpha = ribbon_alpha, inherit.aes = FALSE),
+    ggplot2::geom_line(data = df,
+      ggplot2::aes(x = horizon, y = coef),
+      colour = colour, linewidth = linewidth, inherit.aes = FALSE),
+    ggplot2::geom_point(data = df,
+      ggplot2::aes(x = horizon, y = coef),
+      colour = colour, size = 1.3, inherit.aes = FALSE)
+  )
+}
+
+## Readable labels for the estimation specifications (see 03_estimation.R). Used
+## for facet strips and legends in 04_results.R so raw spec codes never appear.
+spec_label <- function(x) {
+  lut <- c(
+    baseline         = "Baseline",
+    AS1_house        = "House",
+    AS1_apartment    = "Apartment",
+    AS2_asymmetric   = "Asymmetric",
+    AS3_continuous   = "Continuous reserve",
+    R1_no_vienna     = "Vienna excluded",
+    R2_pre_tail      = "Pre-tail sample",
+    R3_de20y         = "DE 20Y instrument",
+    R3_de30y         = "DE 30Y instrument",
+    R4_threshold_p20 = "Threshold: 20th pct",
+    R4_threshold_p30 = "Threshold: 30th pct",
+    R5_lag_augmented = "Lag-augmented"
+  )
+  out <- unname(lut[as.character(x)])
+  ifelse(is.na(out), as.character(x), out)
+}
+
+## Readable labels for the asymmetric-specification terms.
+term_label <- function(x) {
+  lut <- c(shk_ease_x_inel = "Easing surprise",
+           shk_tight_x_inel = "Tightening surprise")
+  out <- unname(lut[as.character(x)])
+  ifelse(is.na(out), as.character(x), out)
+}
+
 # --- Saving: sized to the .tex figure width (14 cm) -------------------------
 ## The .tex uses \includegraphics[width=14cm]. Save at that width so LaTeX does
 ## NOT rescale (which would distort font sizes). Default height suits a single

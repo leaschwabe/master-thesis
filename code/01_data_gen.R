@@ -87,13 +87,20 @@ message("panel dimensions: ", nrow(panel), " x ", ncol(panel))
 
 H_MAX <- 12
 
+## Composite outcome leads dep_00..dep_12 = y_{t+h} - y_{t-1} on the log composite.
+## The house (EFH) and apartment (ETW) leads are built the same way, each on its
+## OWN t-1 base, to serve the property-specific alternative specification (AS1)
+## estimated in 03_estimation.R. Naming mirrors the composite: dep_efh_00..12 and
+## dep_etw_00..12.
 panel <- panel %>%
   group_by(district_id) %>%
   mutate(
     ly_composite = log(p_composite),
     ly_efh       = log(efh_avg),
     ly_etw       = log(etw_avg),
-    ly_base      = dplyr::lag(ly_composite, 1),  # y_{t-1}
+    ly_base      = dplyr::lag(ly_composite, 1),  # composite y_{t-1}
+    ly_base_efh  = dplyr::lag(ly_efh, 1),        # house     y_{t-1}
+    ly_base_etw  = dplyr::lag(ly_etw, 1),        # apartment y_{t-1}
     dep_00 = dplyr::lead(ly_composite,  0) - ly_base,  # y_t    - y_{t-1}
     dep_01 = dplyr::lead(ly_composite,  1) - ly_base,
     dep_02 = dplyr::lead(ly_composite,  2) - ly_base,
@@ -106,7 +113,35 @@ panel <- panel %>%
     dep_09 = dplyr::lead(ly_composite,  9) - ly_base,
     dep_10 = dplyr::lead(ly_composite, 10) - ly_base,
     dep_11 = dplyr::lead(ly_composite, 11) - ly_base,
-    dep_12 = dplyr::lead(ly_composite, 12) - ly_base
+    dep_12 = dplyr::lead(ly_composite, 12) - ly_base,
+    # House (EFH) outcome leads, own base
+    dep_efh_00 = dplyr::lead(ly_efh,  0) - ly_base_efh,
+    dep_efh_01 = dplyr::lead(ly_efh,  1) - ly_base_efh,
+    dep_efh_02 = dplyr::lead(ly_efh,  2) - ly_base_efh,
+    dep_efh_03 = dplyr::lead(ly_efh,  3) - ly_base_efh,
+    dep_efh_04 = dplyr::lead(ly_efh,  4) - ly_base_efh,
+    dep_efh_05 = dplyr::lead(ly_efh,  5) - ly_base_efh,
+    dep_efh_06 = dplyr::lead(ly_efh,  6) - ly_base_efh,
+    dep_efh_07 = dplyr::lead(ly_efh,  7) - ly_base_efh,
+    dep_efh_08 = dplyr::lead(ly_efh,  8) - ly_base_efh,
+    dep_efh_09 = dplyr::lead(ly_efh,  9) - ly_base_efh,
+    dep_efh_10 = dplyr::lead(ly_efh, 10) - ly_base_efh,
+    dep_efh_11 = dplyr::lead(ly_efh, 11) - ly_base_efh,
+    dep_efh_12 = dplyr::lead(ly_efh, 12) - ly_base_efh,
+    # Apartment (ETW) outcome leads, own base
+    dep_etw_00 = dplyr::lead(ly_etw,  0) - ly_base_etw,
+    dep_etw_01 = dplyr::lead(ly_etw,  1) - ly_base_etw,
+    dep_etw_02 = dplyr::lead(ly_etw,  2) - ly_base_etw,
+    dep_etw_03 = dplyr::lead(ly_etw,  3) - ly_base_etw,
+    dep_etw_04 = dplyr::lead(ly_etw,  4) - ly_base_etw,
+    dep_etw_05 = dplyr::lead(ly_etw,  5) - ly_base_etw,
+    dep_etw_06 = dplyr::lead(ly_etw,  6) - ly_base_etw,
+    dep_etw_07 = dplyr::lead(ly_etw,  7) - ly_base_etw,
+    dep_etw_08 = dplyr::lead(ly_etw,  8) - ly_base_etw,
+    dep_etw_09 = dplyr::lead(ly_etw,  9) - ly_base_etw,
+    dep_etw_10 = dplyr::lead(ly_etw, 10) - ly_base_etw,
+    dep_etw_11 = dplyr::lead(ly_etw, 11) - ly_base_etw,
+    dep_etw_12 = dplyr::lead(ly_etw, 12) - ly_base_etw
   ) %>%
   ungroup()
 
@@ -207,15 +242,6 @@ panel <- panel %>%
   ungroup()
 
 
-# -----------------------------------------------------------------------------#
-# 2.4 NEXT STEPS (not built here)
-# -----------------------------------------------------------------------------#
-## - STANDARD ERRORS: decide Driscoll-Kraay vs. two-way (district + time)
-##   clustering before estimation (LP overlapping horizons -> serial correlation;
-##   see 00_data_prep.R shock TODO and structure ss. 5.6).
-## - SIGN CONVENTION: confirm interpretation of beta_h given easing = negative.
-## - Control/Variable Diagnostics (correlation matrix etc.)
-
 
 # -----------------------------------------------------------------------------#
 # =============================================================================#
@@ -223,10 +249,13 @@ panel <- panel %>%
 # =============================================================================#
 ##   panel - balanced district-quarter LP panel (116 x 36), containing:
 ##           composite/efh/etw price levels + logs, cumulative log-change
-##           outcomes dep_00..dep_12 (y_{t+h} - y_{t-1}), price-momentum lags
-##           (dQ_lag1..4), lagged control changes (income p.c., population,
-##           unemployment; 4 lags each), the aggregated shock variants and the
-##           Shock x Inelastic interactions (net / easing / tightening).
+##           outcomes dep_00..dep_12 (y_{t+h} - y_{t-1}) on the composite, plus
+##           the property-specific outcome leads dep_efh_00..12 and dep_etw_00..12
+##           (house and apartment, each on its own t-1 base) for the AS1 spec,
+##           price-momentum lags (dQ_lag1..4), lagged control changes (income
+##           p.c., population, unemployment; 4 lags each), the aggregated shock
+##           variants and the Shock x Inelastic interactions (net / easing /
+##           tightening).
 
 save(
   panel,
