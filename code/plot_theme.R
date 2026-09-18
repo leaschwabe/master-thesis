@@ -254,6 +254,8 @@ spec_label <- function(x) {
     baseline         = "Baseline",
     AS1_house        = "House",
     AS1_apartment    = "Apartment",
+    AS1b_house_weighted     = "House (stock-weighted)",
+    AS1b_apartment_weighted = "Apartment (stock-weighted)",
     AS2_asymmetric   = "Asymmetric",
     AS3_continuous   = "Continuous reserve",
     R1_no_vienna     = "Vienna excluded",

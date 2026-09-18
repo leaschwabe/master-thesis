@@ -104,13 +104,19 @@ panel <- panel %>%
 ## regressor(s) to extract (e.g. the interaction). `spec` labels the run.
 ## The reported coefficient applies the easing sign convention (SIGN); the raw
 ## estimate is retained in `coef_raw`.
+## `weight_var`, if given, names a column used as regression weights (WLS). This
+## implements the stock-weighted property-specific specification (AS1b), where
+## each segment regression weights district-quarters by that segment's fixed
+## stock share, so a district counts for a property type in proportion to how
+## economically relevant that type is locally.
 lp_run <- function(data, dep_prefix, rhs, keep_terms, spec,
-                   horizons = 0:H_MAX, apply_sign = TRUE) {
+                   horizons = 0:H_MAX, apply_sign = TRUE, weight_var = NULL) {
+  wt <- if (is.null(weight_var)) NULL else as.formula(paste0("~ ", weight_var))
   bind_rows(lapply(horizons, function(h) {
     dep <- paste0(dep_prefix, sprintf("%02d", h))
     fml <- as.formula(paste0(dep, " ~ ", rhs, " | district_id + quarter"))
     fit <- feols(fml, data = data, panel.id = ~ district_id + quarter,
-                 notes = FALSE, warn = FALSE)
+                 weights = wt, notes = FALSE, warn = FALSE)
     L <- max(h, 1L)
     # Driscoll-Kraay vcov with horizon-aware lag truncation.
     est <- summary(fit, vcov = DK ~ quarter, lag = L)
@@ -140,11 +146,28 @@ lp_run <- function(data, dep_prefix, rhs, keep_terms, spec,
 lp_baseline <- lp_run(panel, "dep_", paste0("shk_x_inel + ", CONTROLS_RHS),
                       keep_terms = "shk_x_inel", spec = "baseline")
 
-# AS1 property-specific outcomes (house and apartment), same regressors.
+# AS1 property-specific outcomes (house and apartment), naive equal-weight split
+# with the binary interaction. This is the motivating (uninformative) version:
+# it estimates each segment's response with equal weight across all districts,
+# including those where the segment is economically marginal.
 lp_efh <- lp_run(panel, "dep_efh_", paste0("shk_x_inel + ", CONTROLS_RHS),
                  keep_terms = "shk_x_inel", spec = "AS1_house")
 lp_etw <- lp_run(panel, "dep_etw_", paste0("shk_x_inel + ", CONTROLS_RHS),
                  keep_terms = "shk_x_inel", spec = "AS1_apartment")
+
+# AS1b stock-weighted property-specific specification. Each segment regression
+# weights district-quarters by that segment's fixed stock share (house by
+# w_house, apartment by w_apt), so a district counts for a property type in
+# proportion to how relevant that type is locally, and thinly-represented
+# segments contribute little noise. Uses the continuous reserve interaction (the
+# co-primary moderator), since weighting toward apartment-heavy districts would
+# otherwise compress the variation of the binary dummy.
+lp_efh_w <- lp_run(panel, "dep_efh_", paste0("shk_x_inelcont + ", CONTROLS_RHS),
+                   keep_terms = "shk_x_inelcont", spec = "AS1b_house_weighted",
+                   weight_var = "w_house")
+lp_etw_w <- lp_run(panel, "dep_etw_", paste0("shk_x_inelcont + ", CONTROLS_RHS),
+                   keep_terms = "shk_x_inelcont", spec = "AS1b_apartment_weighted",
+                   weight_var = "w_apt")
 
 # AS2 asymmetric: easing and tightening interactions entered together.
 lp_asym <- lp_run(panel, "dep_",
@@ -221,12 +244,13 @@ lp_lagaug <- bind_rows(lapply(0:H_MAX, function(h) {
 # Collect and save
 # -----------------------------------------------------------------------------#
 lp_results <- bind_rows(
-  lp_baseline, lp_efh, lp_etw, lp_asym, lp_cont, lp_asym_cont,
+  lp_baseline, lp_efh, lp_etw, lp_efh_w, lp_etw_w, lp_asym, lp_cont, lp_asym_cont,
   lp_novienna, lp_pretail, lp_de20y, lp_de30y, lp_thr20, lp_thr30, lp_lagaug
 ) %>%
   mutate(spec = factor(spec, levels = c(
-    "baseline", "AS1_house", "AS1_apartment", "AS2_asymmetric", "AS3_continuous",
-    "AS2c_asymmetric_continuous",
+    "baseline", "AS1_house", "AS1_apartment",
+    "AS1b_house_weighted", "AS1b_apartment_weighted",
+    "AS2_asymmetric", "AS3_continuous", "AS2c_asymmetric_continuous",
     "R1_no_vienna", "R2_pre_tail", "R3_de20y", "R3_de30y",
     "R4_threshold_p20", "R4_threshold_p30", "R5_lag_augmented"
   )))

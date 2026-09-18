@@ -18,8 +18,9 @@
 #   thesis/charts/20_irf_baseline_continuous.pdf   (6.1, two panels)
 #   thesis/charts/21_irf_asymmetric_binary.pdf     (6.2)
 #   thesis/charts/22_irf_asymmetric_continuous.pdf (6.2 / appendix)
-#   thesis/charts/23_irf_robustness.pdf            (6.3, shape overlay)
-#   thesis/charts/A1_irf_property_specific.pdf     (appendix)
+#   thesis/charts/24_irf_property_weighted.pdf     (6.2, stock-weighted AS1b)
+#   thesis/charts/23_irf_robustness.pdf            (6.3, three-line shape overlay)
+#   thesis/charts/A1_irf_property_specific.pdf     (appendix, naive AS1)
 #   thesis/tables/irf_baseline.tex                 (6.1, binary | continuous)
 #   thesis/tables/robustness_focal.tex             (6.3, specs at h=7 and h=12)
 #   thesis/tables/residual_dependence.tex          (appendix, real baseline resid)
@@ -56,9 +57,25 @@ res <- lp_results %>%
 
 sub <- function(s) res %>% filter(spec == s)
 
-# Common x-axis theme tweak for horizon plots (horizontal integer labels).
-horizon_x_theme <- theme(axis.text.x = element_text(angle = 0, hjust = 0.5))
-YLAB <- "Differential response to a 1-SD easing surprise (%)"
+# Shared IRF styling. Horizontal integer x labels, a slightly smaller axis title
+# than the theme default (the IRF figures are shorter than the chapter-4 charts,
+# so the title otherwise reads too large), and a common y-axis label. The "per
+# 1-SD easing surprise" scaling is stated in each figure caption, not the axis.
+irf_style <- list(
+  theme(axis.text.x  = element_text(angle = 0, hjust = 0.5),
+        axis.title   = element_text(size = 8),
+        strip.text   = element_text(size = 8))
+)
+YLAB <- "Cumulative differential response (%)"
+# Y-axis labels at a fixed width, chosen per figure to match its range. A single
+# global width cannot suit both the very narrow robustness chart (about +/-0.15)
+# and the wide naive property chart (about +/-1.4): 0.1 over-labels the wide one,
+# 0.25 under-labels the narrow one. y_breaks(width) returns the scale so each
+# figure sets an appropriate spacing. breaks_width is evaluated against each
+# panel's own limits, so free-scaled facets are labelled across their full range.
+y_breaks <- function(width = 0.25) {
+  ggplot2::scale_y_continuous(breaks = scales::breaks_width(width))
+}
 
 # -----------------------------------------------------------------------------#
 # Figure 20: baseline (binary) and continuous reserve, two panels
@@ -66,21 +83,25 @@ YLAB <- "Differential response to a 1-SD easing surprise (%)"
 ## Co-primary specifications side by side. Independent y-axes because the two are
 ## in different units; the caption states this. The panels invite comparison of
 ## SHAPE and PRECISION, not the height of the response.
+bin_lab <- "Binary classification (inelastic vs. elastic)"
+con_lab <- "Continuous reserve (per SD)"
 base_cont <- bind_rows(
-  sub("baseline")       %>% mutate(panel = "Binary classification"),
-  sub("AS3_continuous") %>% mutate(panel = "Continuous reserve")
-) %>% mutate(panel = factor(panel, levels = c("Binary classification", "Continuous reserve")))
+  sub("baseline")       %>% mutate(panel = bin_lab),
+  sub("AS3_continuous") %>% mutate(panel = con_lab)
+) %>% mutate(panel = factor(panel, levels = c(bin_lab, con_lab)))
 
-p_base_cont <- ggplot(base_cont, aes(horizon, coef)) +
+p_base_cont <- ggplot(base_cont, aes(horizon, coef, colour = panel, fill = panel)) +
   geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.3) +
-  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi),
-              fill = thesis_primary[["inelastic"]], alpha = 0.18) +
-  geom_line(colour = thesis_primary[["inelastic"]], linewidth = thesis_linewidth) +
-  geom_point(colour = thesis_primary[["inelastic"]], size = 1.2) +
+  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), alpha = 0.18, colour = NA) +
+  geom_line(linewidth = thesis_linewidth) +
+  geom_point(size = 1.2) +
   facet_wrap(~panel, nrow = 1, scales = "free_y") +
   scale_x_horizon(H_MAX) +
+  y_breaks(0.25) +
+  scale_colour_thesis() + scale_fill_thesis() +
+  guides(colour = "none", fill = "none") +
   labs(x = "Horizon (quarters)", y = YLAB) +
-  theme_thesis() + horizon_x_theme
+  theme_thesis() + irf_style
 ggsave_thesis(file.path(THESIS_FIG_DIR, "20_irf_baseline_continuous.pdf"),
               p_base_cont, height = 7)
 
@@ -98,10 +119,11 @@ asym_plot <- function(spec_name, ylab = YLAB) {
     geom_point(size = 1.2) +
     facet_wrap(~Term, nrow = 1) +
     scale_x_horizon(H_MAX) +
+    y_breaks(0.25) +
     scale_colour_thesis() + scale_fill_thesis() +
     guides(colour = "none", fill = "none") +
     labs(x = "Horizon (quarters)", y = ylab) +
-    theme_thesis() + horizon_x_theme
+    theme_thesis() + irf_style
 }
 
 # Figure 21: binary asymmetric (easing | tightening facets).
@@ -121,34 +143,57 @@ ggsave_thesis(file.path(THESIS_FIG_DIR, "22_irf_asymmetric_continuous.pdf"),
 ## timing are stable across the shock instrument and the classification
 ## threshold, while excluding Vienna flattens the response.
 rob <- bind_rows(
-  sub("baseline"), sub("R1_no_vienna"), sub("R3_de20y"), sub("R4_threshold_p30")
+  sub("baseline"), sub("R1_no_vienna"), sub("R3_de20y")
 ) %>% mutate(Specification = factor(spec_label(spec),
-             levels = c("Baseline", "Vienna excluded", "DE 20Y instrument", "Threshold: 30th pct")))
+             levels = c("Baseline", "Vienna excluded", "DE 20Y instrument")))
 p_rob <- ggplot(rob, aes(horizon, coef, colour = Specification)) +
   geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.3) +
   geom_line(linewidth = thesis_linewidth) +
   geom_point(size = 1.1) +
   scale_x_horizon(H_MAX) +
+  y_breaks(0.1) +
   scale_colour_thesis() +
   labs(x = "Horizon (quarters)", y = YLAB, colour = NULL) +
-  theme_thesis() + horizon_x_theme
+  theme_thesis() + irf_style
 ggsave_thesis(file.path(THESIS_FIG_DIR, "23_irf_robustness.pdf"), p_rob)
 
 # -----------------------------------------------------------------------------#
-# Appendix Figure A1: property-specific (house vs apartment)
+# Property-specific IRFs (house | apartment facets)
 # -----------------------------------------------------------------------------#
-prop <- bind_rows(sub("AS1_house"), sub("AS1_apartment")) %>%
-  mutate(Outcome = factor(spec_label(spec), levels = c("House", "Apartment")))
-p_prop <- ggplot(prop, aes(horizon, coef, colour = Outcome, fill = Outcome)) +
-  geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.3) +
-  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), alpha = 0.15, colour = NA) +
-  geom_line(linewidth = thesis_linewidth) +
-  geom_point(size = 1.2) +
-  scale_x_horizon(H_MAX) +
-  scale_colour_thesis() + scale_fill_thesis() +
-  labs(x = "Horizon (quarters)", y = YLAB, colour = NULL, fill = NULL) +
-  theme_thesis() + horizon_x_theme
-ggsave_thesis(file.path(THESIS_FIG_DIR, "A1_irf_property_specific.pdf"), p_prop)
+## Helper: two-panel house/apartment IRF. Facets share a y-axis so the two
+## segments are directly comparable. `house_spec`/`apt_spec` select the naive
+## (AS1) or the stock-weighted (AS1b) estimates.
+## `bw` sets the y-axis break width; the naive split has a much wider range than
+## the weighted one, so it uses a coarser spacing to avoid over-labelling.
+prop_plot <- function(house_spec, apt_spec, bw = 0.25) {
+  d <- bind_rows(
+    sub(house_spec) %>% mutate(Segment = "House"),
+    sub(apt_spec)   %>% mutate(Segment = "Apartment")
+  ) %>% mutate(Segment = factor(Segment, levels = c("House", "Apartment")))
+  ggplot(d, aes(horizon, coef, colour = Segment, fill = Segment)) +
+    geom_hline(yintercept = 0, colour = "grey50", linewidth = 0.3) +
+    geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), alpha = 0.15, colour = NA) +
+    geom_line(linewidth = thesis_linewidth) +
+    geom_point(size = 1.2) +
+    facet_wrap(~Segment, nrow = 1) +
+    scale_x_horizon(H_MAX) +
+    y_breaks(bw) +
+    scale_colour_thesis() + scale_fill_thesis() +
+    guides(colour = "none", fill = "none") +
+    labs(x = "Horizon (quarters)", y = YLAB) +
+    theme_thesis() + irf_style
+}
+
+# Figure 24 (6.2): stock-weighted property-specific (AS1b), the corrected split.
+p_prop_w <- prop_plot("AS1b_house_weighted", "AS1b_apartment_weighted", bw = 0.25)
+ggsave_thesis(file.path(THESIS_FIG_DIR, "24_irf_property_weighted.pdf"),
+              p_prop_w, height = 7)
+
+# Appendix Figure A1: naive equal-weight property split (AS1), shown as the
+# motivating specification the weighted version corrects.
+p_prop_naive <- prop_plot("AS1_house", "AS1_apartment", bw = 0.5)
+ggsave_thesis(file.path(THESIS_FIG_DIR, "A1_irf_property_specific.pdf"),
+              p_prop_naive, height = 7)
 
 # =============================================================================#
 # TABLES
@@ -188,6 +233,7 @@ writeLines(tab_bc, file.path(LATEX_TAB_DIR, "irf_baseline.tex"), useBytes = TRUE
 ## easing term (the margin of interest); the tightening term is omitted here and
 ## shown in the asymmetric figures.
 focal_specs <- c("baseline", "AS3_continuous", "AS2_asymmetric", "AS2c_asymmetric_continuous",
+                 "AS1b_house_weighted", "AS1b_apartment_weighted",
                  "R1_no_vienna", "R2_pre_tail", "R3_de20y", "R3_de30y",
                  "R4_threshold_p20", "R4_threshold_p30", "R5_lag_augmented")
 focal_row <- function(s) {
