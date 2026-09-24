@@ -232,8 +232,12 @@ writeLines(tab_bc, file.path(LATEX_TAB_DIR, "irf_baseline.tex"), useBytes = TRUE
 ## point estimate and 95% CI. The asymmetric specifications contribute their
 ## easing term (the margin of interest); the tightening term is omitted here and
 ## shown in the asymmetric figures.
-focal_specs <- c("baseline", "AS3_continuous", "AS2_asymmetric", "AS2c_asymmetric_continuous",
-                 "AS1b_house_weighted", "AS1b_apartment_weighted",
+# Robustness-only focal table: the baseline and its continuous companion as
+# references, then the five robustness checks. The alternative specifications
+# (asymmetric, property-specific) have their own figures in Section 6.2 and are
+# not repeated here, so the table does one job, whether the baseline differential
+# survives each robustness check.
+focal_specs <- c("baseline", "AS3_continuous",
                  "R1_no_vienna", "R2_pre_tail", "R3_de20y", "R3_de30y",
                  "R4_threshold_p20", "R4_threshold_p30", "R5_lag_augmented")
 focal_row <- function(s) {

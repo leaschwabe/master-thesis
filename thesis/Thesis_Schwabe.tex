@@ -425,35 +425,90 @@ Five robustness checks probe the durability of the baseline. \textbf{(R1) Vienna
 % =============================================================================
 \section{Empirical Results}\label{sec:results}
 
-\subsection{Baseline Results}\label{subsec:baseline-results}
-% House prices as primary outcome; IRF plot.
+This chapter reports the estimated differential response of district real estate prices to ECB monetary policy surprises. It proceeds from the baseline specification, presented together with the continuous supply measure that complements it, to the alternative specifications that characterize the response, and concludes with the robustness checks that probe its durability. The discussion here is confined to the empirical results of the estimates, their sign, magnitude, precision, and shape across the horizon. Their economic interpretation is taken up in Section~\ref{sec:discussion}.
 
-\subsection{Alternative Responses}\label{subsec:alt-responses}
-% Apartments, building land.
+Two conventions govern how the estimates are reported throughout. The first concerns the scale of the shock. A raw coefficient ($\beta_h$) is the response to a one-unit monetary surprise, that is, a monetary surprise of one basis point. The coefficients are therefore rescaled to the response to a shock of one standard deviation of the net quarterly surprise, measured across the 36 quarters, and stated in percent. The shock is a signed net surprise, negative in easing quarters and positive in tightening quarters. The baseline coefficient measures a symmetric response to a movement in this signed measure. The reported response evaluates this coefficient at a one-standard-deviation \emph{easing} surprise, that is, it multiplies $\beta_h$ by the negative of one standard deviation. This makes the sign read intuitively. Under the convention of Section~\ref{subsec:coef-interpretation} the raw coefficient is expected to be negative when the mechanism holds. Multiplying a negative coefficient by a negative easing surprise yields a positive number, so throughout this chapter a positive value denotes a larger price increase in supply-inelastic districts following monetary easing. The separation of easing from tightening surprises is a feature only of the asymmetric specification in Section~\ref{subsec:alt-responses}. Elsewhere the response is symmetric and the easing framing is a reporting device, not a restriction of the model.
+
+The second convention concerns the continuous supply measure. Here, the building land reserve enters in standardized form. The raw building land reserve is demeaned and divided by its standard deviation across the 116 districts, and oriented so that a higher value denotes a more supply-constrained district. Its coefficient is therefore the differential response per one standard deviation of the reserve, whereas the binary coefficient is a difference between two supply-groups of districts. The two are not comparable in magnitude and are compared instead on the sign, shape, and precision of the estimated response.
+
+\subsection{Baseline Results}\label{subsec:baseline-results}
+The baseline estimates the differential response of the composite price ($p^{\text{comp}}_{i,t}$) using the binary inelastic classification. The estimated response, shown in the left panel of Figure~\ref{fig:irf-baseline-continuous}, is small and imprecisely estimated at every horizon. It begins slightly negative at the horizons immediately following the monetary surprise, turns positive from around three quarters ahead, and builds to a peak of about 0.25\% near horizon seven before receding over the remainder of the three-year window. The confidence interval, formed from the Driscoll-Kraay standard errors, contains zero at every horizon, so the differential cannot be distinguished from zero at conventional levels. The point estimates in Table~\ref{tab:irf-baseline} convey the same picture at the tabulated horizons, with the response reaching about 0.14\% at horizon ten against a standard error of similar magnitude.
+
+Although the differential is not statistically distinguishable from zero, two features of the point estimates are worth recording. From horizon three onward, the sign is in line with the hypothesized supply mechanism, showing a stronger price response where construction is more constrained. The profile is a delayed, hump shape rather than an immediate jump, in line with the price momentum documented in Section~\ref{subsec:price-data}. The peak differential of about 0.25\% is also small relative to the roughly 1.3\% average quarterly composite price growth over the sample, so that the supply channel, if present at the estimated magnitude, would add only modestly to the price dynamics that districts experience in any case.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=14cm]{charts/20_irf_baseline_continuous.pdf}
+	\caption{\figtitle{Differential price response, binary and continuous supply measures}Cumulative differential response of the composite price to a one-standard-deviation easing surprise, in percent. Left, binary inelastic classification; right, continuous building land reserve (per standard deviation). Shaded bands are 95\% Driscoll-Kraay confidence intervals. The two panels use different units and are compared on shape and precision, not level.}\label{fig:irf-baseline-continuous}
+\end{figure}
+
+The continuous specification (AS3), shown in the right panel of Figure~\ref{fig:irf-baseline-continuous}, traces a similar profile. Its response is slightly negative at the first horizons, positive from around three quarters ahead, and rising to a peak between horizons seven and nine before receding. What distinguishes it from the binary specification is its precision, not its shape. The standard errors are roughly half as wide at most horizons, as the columns of Table~\ref{tab:irf-baseline} show, so that the confidence interval narrows around the same path. At the longer horizons the lower bound of the interval approaches zero without crossing it, so that the differential comes close to being distinguishable from zero, which the binary specification never does. This is the pattern the argument in Section~\ref{subsec:robustness-strategy} anticipated, since retaining the full gradient of supply conditions rather than a binary split uses the cross-sectional variation more efficiently and sharpens the estimate of the same underlying response. Read together, the two specifications describe one delayed, positively signed differential of modest size, estimated imprecisely under the binary split and more sharply, though still short of conventional significance, when supply conditions enter continuously.
+
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Baseline differential response, binary and continuous supply measures}Response to a one-standard-deviation easing surprise, in percent, at selected horizons.}\label{tab:irf-baseline}
+	\input{tables/irf_baseline.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Estimates are the cumulative differential response of the composite price to a one-standard-deviation easing surprise, in percent, with Driscoll-Kraay standard errors and 95\% confidence intervals. The binary coefficient is a difference between supply-inelastic and supply-elastic districts; the continuous coefficient is per standard deviation of the building land reserve, and the two are not comparable in magnitude.
+	\end{minipage}
+\end{table}
+
+\subsection{Alternative Specifications}\label{subsec:alt-responses}
+The alternative specifications characterize the response rather than test its durability, and each is reported on the same per-standard-deviation easing scale introduced at the start of this chapter.
+
+\textbf{(AS2) Asymmetric shock decomposition.} The net shock is split within each quarter into an easing component, the sum of the negative surprises, and a tightening component, the sum of the positive surprises, and the two enter the model with separate interactions. This addresses whether the transmission of monetary policy is asymmetric across the phases of the monetary policy cycle. Figure~\ref{fig:irf-asymmetric-binary} reports the decomposition under the binary classification. The easing response traces a delayed, positively signed profile that peaks at about 0.28\% near horizon seven, close in shape to the baseline, while the tightening response is flatter and less regular around zero. Neither is statistically distinguishable from zero at any horizon under the binary split, so the two responses cannot be distinguished from one another on the basis of these estimates alone, though the point estimates suggest that the easing side is where the differential builds.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=14cm]{charts/21_irf_asymmetric_binary.pdf}
+	\caption{\figtitle{Asymmetric differential response, binary supply measure}Cumulative differential response to a one-standard-deviation easing (left) and tightening (right) surprise, in percent, by horizon in quarters, under the binary inelastic classification. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-binary}
+\end{figure}
+
+The continuous measure sharpens this picture. Estimating the same decomposition with the reserve entered continuously, on the same per-standard-deviation-of-reserve scale as in the baseline, Figure~\ref{fig:irf-asymmetric-continuous} shows an easing response that is distinguishable from zero at the longer horizons, with a differential of about 0.23\% at horizon nine (confidence interval $[0.01, 0.46]$) and about 0.14\% at horizon twelve (confidence interval $[0.01, 0.27]$), where the interval excludes zero. The tightening response remains centered on zero throughout, with intervals that always contain it. The easing and tightening differentials are therefore distinguishable from one another at these horizons only in the continuous specification, and the asymmetry runs in the direction the mechanism implies, that the amplification of the price response in supply-constrained districts operates through monetary easing rather than through tightening. This is the sharpest evidence in the analysis for the hypothesized channel, and its placement at the longer horizons is consistent with the delayed build seen in the level response. It should nonetheless be read with the caveat that these are the horizons at which the estimation sample is smallest and the Driscoll-Kraay lag longest, so the precision is most fragile precisely where the differential clears zero.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=14cm]{charts/22_irf_asymmetric_continuous.pdf}
+	\caption{\figtitle{Asymmetric differential response, continuous supply measure}Cumulative differential response per standard deviation of the building land reserve to a one-standard-deviation easing (left) and tightening (right) surprise, in percent, by horizon in quarters. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-continuous}
+\end{figure}
+
+\textbf{(AS1) Property-specific outcomes.} Estimating the house and apartment series as separate outcomes probes whether the composite result reflects a common response of both segments or is driven by one of them. In its unweighted form, however, this split is uninformative by construction, since it estimates each segment's response with equal weight across all districts. Given the heterogeneity of the district housing stock documented in Section~\ref{subsec:price-data}, where many districts are almost entirely houses or almost entirely apartments, each segment regression is then dominated in part by districts where that segment is a negligible share of the local market and its measured price is thin and noisy. The resulting estimates, reported in Appendix~\ref{fig:irf-property-naive}, are correspondingly imprecise, with wide intervals and no clear or interpretable profile in either series, and are best read as a motivation for the weighted specification rather than as a result in their own right.
+
+\textbf{(AS1b) Stock-weighted property-specific outcomes.} The weighted specification set out in Section~\ref{subsec:robustness-strategy} addresses this by weighting each district-quarter by the fixed stock share of the segment being modeled, so that a district contributes to a segment in proportion to how material that segment is to its local market and thinly represented segments add little noise. This sharpens the property-specific estimates considerably. Figure~\ref{fig:irf-property-weighted} reports the result, on the continuous reserve scale. The house response is imprecise throughout but turns mildly positive at the longer horizons, in the direction the mechanism predicts and in contrast to the unweighted split. The apartment response is more pronounced and is distinguishable from zero at horizon six, where the differential is about $-0.39\%$ (confidence interval $[-0.62, -0.16]$), before returning toward zero. The negative sign indicates that apartment prices in supply-constrained districts respond less strongly, or in the opposite direction, to easing at this horizon than in less constrained districts, a pattern that runs counter to the house segment and to the composite. The weighted apartment response is estimated predominantly on the urban, apartment-heavy districts, which are also those classified as inelastic and geographically concentrated, as documented in Section~\ref{subsec:supply-measure}. This segment-level result is therefore bound up with that concentration, whose interpretation is taken up in Section~\ref{sec:discussion}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=14cm]{charts/24_irf_property_weighted.pdf}
+	\caption{\figtitle{Stock-weighted property-specific differential response}Cumulative differential response of the house (left) and apartment (right) price per standard deviation of the building land reserve to a one-standard-deviation easing surprise, in percent, by horizon in quarters. Each segment is estimated by weighted least squares, weighting district-quarters by that segment's fixed stock share. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-property-weighted}
+\end{figure}
 
 \subsection{Robustness Checks}\label{subsec:robustness}
-% Vienna treatment, alternative thresholds, continuous reserve measure,
-% alternative shock aggregation, shorter horizon, etc.
+The robustness checks vary an estimation or sample choice while leaving the effect of interest unchanged, in order to establish that the baseline pattern is not an artifact of a particular decision. Figure~\ref{fig:irf-robustness} overlays the baseline response with the two checks that bear most directly on the concerns raised in the data chapter, the exclusion of Vienna and the use of an alternative shock instrument. The profiles track one another closely through the middle horizons, so the delayed, positively signed shape of the response does not depend on the OIS 20Y instrument or on the presence of Vienna in the sample. The one visible divergence is at the longer horizons, where the Vienna-excluded path flattens and turns slightly negative while the others remain positive, indicating that the magnitude of the differential beyond the two-year horizon is carried disproportionately by the Viennese districts.
 
-% TODO (residual diagnostics, moved here from Chapter 5 / Appendix):
-% Report the concrete residual-dependence numbers here once the full estimation is
-% run, as the empirical confirmation of the serial and cross-sectional dependence
-% MOTIVATED theoretically in Section~\ref{subsec:inference}. Use a backward reference
-% to that motivation. These figures come from the preliminary FE diagnostic and will
-% likely be reworked once the final estimates exist; kept commented so nothing is lost.
-% Draft text and table to reinstate:
-%
-% The residual diagnostics confirm the dependence anticipated in
-% Section~\ref{subsec:inference}. The within-district first-order autocorrelation of
-% the residuals, that is, the correlation between a district's residual in one quarter
-% and its residual in the next, rises from near zero at horizon zero to about 0.85 at
-% the longest horizon, as the longer-horizon outcomes accumulate over increasingly
-% overlapping windows. The cross-sectional dependence is also present, with the mean
-% absolute pairwise correlation of the residuals across districts within a quarter
-% reaching roughly 0.43 at the longest horizon. These figures are reported in
-% Appendix~\ref{tab:residual-dependence}.
-%
-% (Reinstate the residual_dependence table in the Appendix when reporting this.)
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=14cm]{charts/23_irf_robustness.pdf}
+	\caption{\figtitle{Robustness of the differential response}Cumulative differential response to a one-standard-deviation easing surprise, in percent, by horizon in quarters, for the baseline and two robustness checks. Point estimates only; confidence intervals are omitted for legibility and are reported at focal horizons in Table~\ref{tab:robustness-focal}.}\label{fig:irf-robustness}
+\end{figure}
+
+Table~\ref{tab:robustness-focal} reports the estimate and confidence interval for every check at the peak horizon, seven quarters ahead, and at the end of the window, twelve quarters ahead. Three patterns are worth noting. First, the peak estimate is stable across the instrument and the classification threshold, ranging from about 0.21\% to 0.32\% under the German bond instruments and the alternative percentile cut-offs, close to the baseline value of about 0.25\%. Second, two checks move the estimate as the data chapter anticipated. Excluding Vienna roughly halves the peak differential, to about 0.13\%, and estimating on the pre-tail sample that drops the extrapolated control observations turns the peak slightly negative, which confirms that the constructed tail contributes to the short-run estimate and motivates its treatment as a sensitivity check. Third, the confidence intervals continue to contain zero at both horizons for every check, with one exception, the lag-augmented estimator, whose heteroskedasticity-robust interval excludes zero at the peak horizon (about 0.25\% with interval $[0.01, 0.49]$). Since the lag-augmented estimator shares the baseline point estimate and differs only in the standard error, this indicates that the baseline differential at the peak is distinguishable from zero under an inference procedure whose validity does not rest on the growing time dimension that the Driscoll-Kraay correction assumes, which is reassuring given the short panel, though it remains a single horizon under a single estimator and is not treated as decisive on its own.
+
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Differential response across robustness checks at focal horizons}Response to a one-standard-deviation easing surprise, in percent, at horizons seven and twelve.}\label{tab:robustness-focal}
+	\input{tables/robustness_focal.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Each row is a separate estimation. The baseline and the robustness checks use the binary supply classification; the continuous reserve row is included as the co-primary reference. Intervals are 95\% Driscoll-Kraay confidence intervals, except the lag-augmented row, which reports heteroskedasticity-robust intervals following \citet{montielolea2021}.
+	\end{minipage}
+\end{table}
+
+Finally, the residual diagnostics confirm the dependence that motivated the treatment of standard errors in Section~\ref{subsec:inference}. Estimated on the baseline specification, the within-district first-order autocorrelation of the residuals, the correlation between a district's residual in one quarter and its residual in the next, rises from near zero at horizon zero to about 0.85 at the longest horizon, as the cumulative outcomes at successive horizons come to overlap over increasingly many quarters. The cross-sectional dependence is present as well, with the mean absolute pairwise correlation of the residuals across districts within a quarter rising to about 0.43 at the longest horizon. Both patterns, reported in Appendix~\ref{tab:residual-dependence}, confirm that ordinary standard errors would be inappropriate and that a correction addressing both dimensions of dependence is required, as the inference in this chapter uses.
 
 % =============================================================================
 %  7. DISCUSSION
@@ -509,23 +564,23 @@ Five robustness checks probe the durability of the baseline. \textbf{(R1) Vienna
 	\input{tables/panel_integrity.tex}
 \end{table}
 
-% TODO (moved to Chapter 6, Results): The residual-dependence appendix table below
-% is commented out for now. It reports the preliminary FE-diagnostic residual
-% statistics (AR(1), mean/max pairwise correlation). Once the full estimation is
-% run, rework and report these residual diagnostics in the results chapter (see the
-% commented block in subsec:robustness), and reinstate this table then. Kept here so
-% no information is lost.
-% \begin{table}[H]
-% 	\centering
-% 	\caption{\figtitle{Residual dependence of the two-way fixed-effects specification}}\label{tab:residual-dependence}
-% 	\input{tables/residual_dependence.tex}
-%
-% 	\vspace{0.2cm}
-% 	\begin{minipage}{0.9\textwidth}
-% 		\footnotesize
-% 		\textit{Notes.} Residuals are from the baseline two-way fixed-effects specification (Equation~\ref{eq:lp}), fit at selected horizons $h$ as a preliminary diagnostic ahead of the full estimation. Residual AR(1) is the first-order within-district autocorrelation of the residuals; Mean $|\rho|$ and Max $|\rho|$ are the mean and maximum absolute pairwise correlation of the residuals across districts within a quarter. The rising values over horizons reflect the serial and cross-sectional dependence discussed in Section~\ref{subsec:inference}.
-% 	\end{minipage}
-% \end{table}
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Residual dependence of the baseline specification}}\label{tab:residual-dependence}
+	\input{tables/residual_dependence.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Residuals are from the baseline two-way fixed-effects specification (Equation~\ref{eq:lp}), estimated at selected horizons $h$. Residual AR(1) is the first-order within-district autocorrelation of the residuals; Mean $|\rho|$ and Max $|\rho|$ are the mean and maximum absolute pairwise correlation of the residuals across districts within a quarter. The values rising over horizons reflect the serial and cross-sectional dependence discussed in Section~\ref{subsec:inference} and Section~\ref{subsec:robustness}.
+	\end{minipage}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=14cm]{charts/A1_irf_property_specific.pdf}
+	\caption{\figtitle{Property-specific differential response, unweighted}Cumulative differential response of the house (left) and apartment (right) price to a one-standard-deviation easing surprise, in percent, by horizon in quarters, under the binary inelastic classification and without stock weighting. Shaded bands are 95\% Driscoll-Kraay confidence intervals. This unweighted split is the motivating specification for the stock-weighted estimates in Section~\ref{subsec:alt-responses}.}\label{fig:irf-property-naive}
+\end{figure}
 
 % --- Formatting reference snippets (uncomment and adapt as needed) -----------
 % Figure (place image files in the charts/ folder):
