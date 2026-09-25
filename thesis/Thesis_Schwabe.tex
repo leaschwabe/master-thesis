@@ -442,7 +442,7 @@ Although the differential is not statistically distinguishable from zero, two fe
 	\caption{\figtitle{Differential price response, binary and continuous supply measures}Cumulative differential response of the composite price to a one-standard-deviation easing surprise, in percent. Left, binary inelastic classification; right, continuous building land reserve (per standard deviation). Shaded bands are 95\% Driscoll-Kraay confidence intervals. The two panels use different units and are compared on shape and precision, not level.}\label{fig:irf-baseline-continuous}
 \end{figure}
 
-The continuous specification (\textbf{AS3}), shown in the right panel of Figure~\ref{fig:irf-baseline-continuous}, traces a similar profile. Its response is slightly negative at the first horizons, positive from around three quarters ahead, and rising to a peak between horizons seven and nine before receding. What distinguishes it from the binary specification is its precision, not its shape. The standard errors are roughly half as wide at most horizons, as the columns of Table~\ref{tab:irf-baseline} show, so that the confidence interval narrows around the same path. At the longer horizons the lower bound of the interval approaches zero without crossing it, so that the differential comes close to being distinguishable from zero. This is the pattern the argument in Section~\ref{subsec:robustness-strategy} anticipated, since retaining the full gradient of supply conditions rather than a binary split uses the cross-sectional variation more efficiently and sharpens the estimate of the same underlying response. Read together, the two specifications describe a delayed, positively signed differential of modest size, estimated imprecisely under the binary split and more sharply, though still short of conventional significance, when supply conditions enter continuously.
+The continuous specification (\textbf{AS3}), shown in the right panel of Figure~\ref{fig:irf-baseline-continuous}, traces a similar profile. Its response is slightly negative at the first horizons, positive from around three quarters ahead, and rising to a peak between horizons seven and nine before receding. What distinguishes it from the binary specification is its precision, not its shape. The standard errors are roughly half as wide at most horizons, as the columns of Table~\ref{tab:irf-baseline} show, so that the confidence interval narrows around the same path. At the longer horizons the lower bound of the interval approaches zero without crossing it, so that the differential comes close to being distinguishable from zero. This is the pattern the argument in Section~\ref{subsec:robustness-strategy} anticipated, since retaining the full gradient of supply conditions rather than a binary split uses the cross-sectional variation more efficiently and sharpens the estimate of the same underlying response. Read together, the two specifications describe a delayed, positively signed differential of modest size, estimated imprecisely under the binary split and more sharply, though still short of conventional significance, when supply conditions enter continuously. The raw coefficients at every horizon are reported in Appendix Table~\ref{tab:raw-baseline}.
 
 \begin{table}[H]
 	\centering
@@ -467,7 +467,7 @@ The alternative specifications characterize the response rather than test its du
 	\caption{\figtitle{Asymmetric differential response, binary supply measure}Cumulative differential response to a one-standard-deviation easing (left) and tightening (right) surprise, in percent, by horizon in quarters, under the binary inelastic classification. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-binary}
 \end{figure}
 
-The continuous supply-measure sharpens this picture. Estimating the same decomposition with the building land reserve entered continuously, on the same per-standard-deviation-of-reserve scale as in the baseline, Figure~\ref{fig:irf-asymmetric-continuous} shows an easing response that is distinguishable from zero at the longer horizons, with a differential of about 0.23\% at horizon nine (confidence interval $[0.01, 0.46]$) and about 0.14\% at horizon twelve (confidence interval $[0.01, 0.27]$), where the interval excludes zero. The tightening response remains centered on zero throughout, with intervals that always contain zero. The easing differential is therefore distinguishable from zero at these horizons while the tightening differential is not, a pattern that is consistent with an asymmetry in which the amplification of the price response in supply-constrained districts operates through monetary easing rather than through tightening. The difference between the two responses is not itself formally tested, so the asymmetry is read as suggestive rather than established. What the estimates show directly is that only the easing side attains a differential distinguishable from zero. This is nonetheless the sharpest evidence in the analysis for the hypothesized channel, and its placement at the longer horizons is consistent with the delayed build seen in the level response. It should be read under the stipulation that these are the horizons at which the estimation sample is smallest and the Driscoll-Kraay lag longest, so the precision is most fragile precisely where the differential clears zero.
+The continuous supply-measure sharpens this picture. Estimating the same decomposition with the building land reserve entered continuously, on the same per-standard-deviation-of-reserve scale as in the baseline, Figure~\ref{fig:irf-asymmetric-continuous} shows an easing response that is distinguishable from zero at the longer horizons, with a differential of about 0.23\% at horizon nine (confidence interval $[0.01, 0.46]$) and about 0.14\% at horizon twelve (confidence interval $[0.01, 0.27]$), where the interval excludes zero. The tightening response remains centered on zero throughout, with intervals that always contain zero. The easing differential is therefore distinguishable from zero at these horizons while the tightening differential is not, a pattern that is consistent with an asymmetry in which the amplification of the price response in supply-constrained districts operates through monetary easing rather than through tightening. The difference between the two responses is not itself formally tested, so the asymmetry is read as suggestive rather than established. What the estimates show directly is that only the easing side attains a differential distinguishable from zero. This is nonetheless the sharpest evidence in the analysis for the hypothesized channel, and its placement at the longer horizons is consistent with the delayed build seen in the level response. It should be read under the stipulation that these are the horizons at which the estimation sample is smallest and the Driscoll-Kraay lag longest, so the precision is most fragile precisely where the differential clears zero. The raw easing and tightening coefficients for both the binary and the continuous decomposition are reported in Appendix Tables~\ref{tab:raw-asymmetric-binary} and~\ref{tab:raw-asymmetric-continuous}.
 
 \begin{figure}[H]
 	\centering
@@ -477,7 +477,7 @@ The continuous supply-measure sharpens this picture. Estimating the same decompo
 
 \textbf{(AS1) Property-specific outcomes.} Estimating the house and apartment series as separate outcomes probes whether the composite result reflects a common response of both segments or is driven by one of them. In its unweighted form, however, this split is uninformative by construction, since it estimates each segment's response with equal weight across all districts. Given the heterogeneity of the district housing stock documented in Section~\ref{subsec:price-data}, where many districts are almost entirely houses or almost entirely apartments, each segment regression is then dominated in part by districts where that segment is a negligible share of the local market and its measured price is thin and noisy. The resulting estimates, reported in Appendix~\ref{fig:irf-property-naive}, are correspondingly imprecise, with wide intervals and no clear or interpretable profile in either series, and are best read as a motivation for the weighted specification rather than as a result in their own right.
 
-\textbf{(AS1b) Stock-weighted property-specific outcomes.} The weighted specification described in Section~\ref{subsec:robustness-strategy} addresses this by weighting each district-quarter by the fixed stock share of the segment being modeled, so that a district contributes to a segment in proportion to how material that segment is to its local market and thinly represented segments add little noise. This sharpens the property-specific estimates considerably. Figure~\ref{fig:irf-property-weighted} reports the result, on the continuous building land reserve scale. The house response is imprecise throughout but turns mildly positive at the longer horizons, in the direction the mechanism predicts and in contrast to the unweighted split. The apartment response is more pronounced and is distinguishable from zero at horizon six, where the differential is about $-0.39\%$ (confidence interval $[-0.62, -0.16]$), before returning toward zero. The negative sign indicates that apartment prices in supply-constrained districts respond less strongly, or in the opposite direction, to easing at this horizon than in less constrained districts, a pattern that runs counter to the house segment and to the composite. The weighted apartment response is estimated predominantly on the urban, apartment-heavy districts, which are also those classified as inelastic and geographically concentrated, as documented in Section~\ref{subsec:supply-measure}. This segment-level result is therefore bound up with that concentration, whose interpretation is taken up in Section~\ref{sec:discussion}.
+\textbf{(AS1b) Stock-weighted property-specific outcomes.} The weighted specification described in Section~\ref{subsec:robustness-strategy} addresses this by weighting each district-quarter by the fixed stock share of the segment being modeled, so that a district contributes to a segment in proportion to how material that segment is to its local market and thinly represented segments add little noise. This sharpens the property-specific estimates considerably. Figure~\ref{fig:irf-property-weighted} reports the result, on the continuous building land reserve scale, with the raw coefficients at every horizon in Appendix Table~\ref{tab:raw-property}. The house response is imprecise throughout but turns mildly positive at the longer horizons, in the direction the mechanism predicts and in contrast to the unweighted split. The apartment response is more pronounced and is distinguishable from zero at horizon six, where the differential is about $-0.39\%$ (confidence interval $[-0.62, -0.16]$), before returning toward zero. The negative sign indicates that apartment prices in supply-constrained districts respond less strongly, or in the opposite direction, to easing at this horizon than in less constrained districts, a pattern that runs counter to the house segment and to the composite. The weighted apartment response is estimated predominantly on the urban, apartment-heavy districts, which are also those classified as inelastic and geographically concentrated, as documented in Section~\ref{subsec:supply-measure}. This segment-level result is therefore bound up with that concentration, whose interpretation is taken up in Section~\ref{sec:discussion}.
 
 \begin{figure}[H]
 	\centering
@@ -581,6 +581,54 @@ Table~\ref{tab:robustness-focal} reports the estimate and confidence interval fo
 	\includegraphics[width=14cm]{charts/A1_irf_property_specific.pdf}
 	\caption{\figtitle{Property-specific differential response, unweighted}Cumulative differential response of the house (left) and apartment (right) price to a one-standard-deviation easing surprise, in percent, by horizon in quarters, under the binary inelastic classification and without stock weighting. Shaded bands are 95\% Driscoll-Kraay confidence intervals. This unweighted split is the motivating specification for the stock-weighted estimates in Section~\ref{subsec:alt-responses}.}\label{fig:irf-property-naive}
 \end{figure}
+
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Baseline and continuous (AS3) specifications, raw coefficients}Estimated interaction coefficient per horizon $h$.}\label{tab:raw-baseline}
+	\input{tables/raw_baseline.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$: number of district-quarter observations per horizon. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative coefficient corresponds to a larger price increase in supply-inelastic districts following monetary easing. Percent response to a one-standard-deviation easing surprise reported in the text: $\beta_h ~x ~-SD ~x ~100$ (SD = 2.66). The continuous coefficient is per one standard deviation of the building land reserve.
+	\end{minipage}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Asymmetric specification (AS2), binary classification, raw coefficients}Estimated easing and tightening interaction coefficients per horizon $h$.}\label{tab:raw-asymmetric-binary}
+	\input{tables/raw_asymmetric_binary.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$ is the number of district-quarter observations at each horizon. The easing and tightening components are the within-quarter sums of the negative and positive surprises. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative easing coefficient corresponds to a larger price increase in supply-inelastic districts following monetary easing.
+	\end{minipage}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Asymmetric specification (AS2), continuous reserve, raw coefficients}Estimated easing and tightening interaction coefficients per horizon $h$.}\label{tab:raw-asymmetric-continuous}
+	\input{tables/raw_asymmetric_continuous.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, interacted with the standardized building land reserve, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$ is the number of district-quarter observations at each horizon. Coefficients are per one standard deviation of the reserve. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative easing coefficient corresponds to a larger price increase in more supply-constrained districts following monetary easing.
+	\end{minipage}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{\figtitle{Stock-weighted property-specific specification (AS1b), raw coefficients}Estimated interaction coefficient for the house and apartment outcomes per horizon $h$.}\label{tab:raw-property}
+	\input{tables/raw_property.tex}
+
+	\vspace{0.2cm}
+	\begin{minipage}{0.9\textwidth}
+		\footnotesize
+		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, interacted with the standardized building land reserve, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$ is the number of district-quarter observations at each horizon. Each segment is estimated by weighted least squares, weighting district-quarters by that segment's fixed stock share. Coefficients are per one standard deviation of the reserve. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative coefficient corresponds to a larger price increase in more supply-constrained districts following monetary easing.
+	\end{minipage}
+\end{table}
 
 % --- Formatting reference snippets (uncomment and adapt as needed) -----------
 % Figure (place image files in the charts/ folder):

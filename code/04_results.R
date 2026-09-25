@@ -284,6 +284,102 @@ tab_rd <- c(
 )
 writeLines(tab_rd, file.path(LATEX_TAB_DIR, "residual_dependence.tex"), useBytes = TRUE)
 
+# -----------------------------------------------------------------------------#
+# Appendix tables: raw coefficients (on the record), all horizons
+# -----------------------------------------------------------------------------#
+## These report the untransformed estimated coefficients, per one-basis-point
+## surprise, so the actual estimates appear in the thesis. The body reports the
+## rescaled, sign-flipped percent responses; a table note gives the mapping. Raw
+## values are taken from lp_results (coef_raw and se); the raw 95% confidence
+## interval is coef_raw +/- 1.96 * se. N is per horizon (it declines with the
+## horizon) and is shown once per row, shared across the coefficient blocks.
+rawnum <- function(x) formatC(x, format = "f", digits = 4)
+raw_ci <- function(b, se) paste0("[", rawnum(b - 1.96 * se), ", ", rawnum(b + 1.96 * se), "]")
+
+## Per-horizon raw cells (b & SE & CI) for one spec/term, ordered by horizon.
+raw_cells <- function(spec_name, term_name) {
+  d <- lp_results %>% filter(spec == spec_name, term == term_name) %>% arrange(horizon)
+  paste0(rawnum(d$coef_raw), " & ", rawnum(d$se), " & ", raw_ci(d$coef_raw, d$se))
+}
+horizons_col <- function(spec_name, term_name) {
+  d <- lp_results %>% filter(spec == spec_name, term == term_name) %>% arrange(horizon)
+  d$horizon
+}
+n_col <- function(spec_name, term_name) {
+  d <- lp_results %>% filter(spec == spec_name, term == term_name) %>% arrange(horizon)
+  d$n
+}
+
+## Bare tabular only (caption, label, and note live in the .tex appendix, to match
+## the pattern of the other generated tables). Each has an $h$ column, two
+## coefficient blocks of (beta, SE, CI), and a shared N column.
+raw_tabular <- function(rows, header_top, header_cols) {
+  c("\\begin{tabular}{r r r c r r c r}",
+    "\\toprule",
+    header_top,
+    header_cols,
+    "\\midrule",
+    rows,
+    "\\bottomrule",
+    "\\end{tabular}")
+}
+
+# Table A: baseline (binary) and continuous, one interaction term each.
+{
+  h  <- horizons_col("baseline", "shk_x_inel")
+  bn <- n_col("baseline", "shk_x_inel")
+  bin <- raw_cells("baseline", "shk_x_inel")
+  con <- raw_cells("AS3_continuous", "shk_x_inelcont")
+  rows <- paste0(h, " & ", bin, " & ", con, " & ", bn, " \\\\")
+  writeLines(raw_tabular(
+    rows,
+    " & \\multicolumn{3}{c}{Binary classification} & \\multicolumn{3}{c}{Continuous reserve} & \\\\",
+    "$h$ & $\\beta_h$ & SE & 95\\% CI & $\\beta_h$ & SE & 95\\% CI & $N$ \\\\"),
+    file.path(LATEX_TAB_DIR, "raw_baseline.tex"), useBytes = TRUE)
+}
+
+# Table B1: asymmetric, binary, easing and tightening terms.
+{
+  h  <- horizons_col("AS2_asymmetric", "shk_ease_x_inel")
+  bn <- n_col("AS2_asymmetric", "shk_ease_x_inel")
+  ea <- raw_cells("AS2_asymmetric", "shk_ease_x_inel")
+  ti <- raw_cells("AS2_asymmetric", "shk_tight_x_inel")
+  rows <- paste0(h, " & ", ea, " & ", ti, " & ", bn, " \\\\")
+  writeLines(raw_tabular(
+    rows,
+    " & \\multicolumn{3}{c}{Easing} & \\multicolumn{3}{c}{Tightening} & \\\\",
+    "$h$ & $\\beta_h$ & SE & 95\\% CI & $\\beta_h$ & SE & 95\\% CI & $N$ \\\\"),
+    file.path(LATEX_TAB_DIR, "raw_asymmetric_binary.tex"), useBytes = TRUE)
+}
+
+# Table B2: asymmetric, continuous, easing and tightening terms.
+{
+  h  <- horizons_col("AS2c_asymmetric_continuous", "shk_ease_x_inelcont")
+  bn <- n_col("AS2c_asymmetric_continuous", "shk_ease_x_inelcont")
+  ea <- raw_cells("AS2c_asymmetric_continuous", "shk_ease_x_inelcont")
+  ti <- raw_cells("AS2c_asymmetric_continuous", "shk_tight_x_inelcont")
+  rows <- paste0(h, " & ", ea, " & ", ti, " & ", bn, " \\\\")
+  writeLines(raw_tabular(
+    rows,
+    " & \\multicolumn{3}{c}{Easing} & \\multicolumn{3}{c}{Tightening} & \\\\",
+    "$h$ & $\\beta_h$ & SE & 95\\% CI & $\\beta_h$ & SE & 95\\% CI & $N$ \\\\"),
+    file.path(LATEX_TAB_DIR, "raw_asymmetric_continuous.tex"), useBytes = TRUE)
+}
+
+# Table C: stock-weighted property-specific, house and apartment.
+{
+  h  <- horizons_col("AS1b_house_weighted", "shk_x_inelcont")
+  hn <- n_col("AS1b_house_weighted", "shk_x_inelcont")
+  ho <- raw_cells("AS1b_house_weighted", "shk_x_inelcont")
+  ap <- raw_cells("AS1b_apartment_weighted", "shk_x_inelcont")
+  rows <- paste0(h, " & ", ho, " & ", ap, " & ", hn, " \\\\")
+  writeLines(raw_tabular(
+    rows,
+    " & \\multicolumn{3}{c}{House} & \\multicolumn{3}{c}{Apartment} & \\\\",
+    "$h$ & $\\beta_h$ & SE & 95\\% CI & $\\beta_h$ & SE & 95\\% CI & $N$ \\\\"),
+    file.path(LATEX_TAB_DIR, "raw_property.tex"), useBytes = TRUE)
+}
+
 message("Results figures and tables written.")
 message("shock_sd used for scaling: ", round(SD, 4))
 message("Charts: ", normalizePath(THESIS_FIG_DIR, winslash = "/", mustWork = FALSE))
