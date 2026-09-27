@@ -8,6 +8,8 @@
 \usepackage[official]{eurosym}
 \usepackage{ntheorem}
 \newtheorem{hyp}{Hypothesis}
+\newtheorem*{mainrq}{Research Question}
+\newtheorem{researchq}{Sub-question}
 \usepackage{pdfpages}
 \usepackage{adjustbox}
 \usepackage{footnote}
@@ -143,27 +145,32 @@ style = apa]
 \section{Introduction}\label{sec:int}
 
 \subsection{Motivation}\label{subsec:motivation}
-% Austrian real estate price boom, affordability, monetary policy phases,
-% regional differences -- why are regional responses to common shocks
-% heterogeneous?
 
-\subsection{Research Gap}\label{subsec:gap}
-% National trends are documented; the interaction between ECB shocks and land
-% scarcity has not been directly estimated.
+In the years after the global financial crisis, the European Central Bank pushed monetary policy well beyond the conventional adjustment of the policy rate. First through large-scale asset purchases and later through rapid monetary tightening \citep{benigno2023}. Over the same period, residential property prices in Austria rose steeply through 2021 and then corrected from 2022 onward, tracking the broad arc of monetary conditions \citep{belabed2022, hildebrandt2023}. How monetary policy is transmitted to house prices is by now well documented, yet a common monetary impulse does not reach every regional housing market in the same way. Where the local housing stock can expand readily, a demand impulse is absorbed in new construction, whereas where developable land is scarce it is absorbed in prices \citep{saiz2010, aastveit2022}. Austria, with its pronounced geographic variation in the availability of building land, is a natural setting in which to examine this mechanism, yet the regional transmission of monetary policy to housing within the Euro Area has so far been traced to the structure of mortgage finance rather than to supply conditions \citep{battistini2025}, and it has not been isolated for Austria at the district level, the level at which supply constraints actually vary. The background developed in the following two chapters shows both why this mechanism is plausible and that it has not yet been tested in this setting.
 
-\subsection{Research Question}\label{subsec:rq}
-% Primary RQ: To what extent do local supply constraints moderate the dynamic
-% response of district-level real estate prices to ECB monetary shocks in
-% Austria?
-% Sub-questions: (a) magnitude of cumulative log price changes across
-% elastic/inelastic districts; (b) temporal response over a three-year horizon;
-% (c) asymmetry across monetary policy phases.
+\subsection{Research Question and Contribution}\label{subsec:rq}
 
-\subsection{Contribution}\label{subsec:contribution}
-% Evidence at the district level.
+This thesis is guided by a single overarching question.
 
-\subsection{Thesis Outline}\label{subsec:outline}
-% Brief roadmap of the remaining chapters.
+\begin{mainrq}\label{rq:main}
+	To what extent do local supply constraints moderate the dynamic response of district-level residential real estate prices to ECB monetary policy shocks in Austria?
+\end{mainrq}
+
+This question is pursued along three dimensions, which the empirical analysis addresses in turn.
+
+\begin{researchq}\label{rq:magnitude}
+	Does a monetary easing surprise raise district-level real estate prices by more in supply-inelastic than in supply-elastic districts?
+\end{researchq}
+\begin{researchq}\label{rq:persistence}
+	Does any such differential response hold or fade over the three-year horizon following the shock?
+\end{researchq}
+\begin{researchq}\label{rq:asymmetry}
+	Does the moderating role of supply constraints differ between the easing and tightening phases of monetary policy?
+\end{researchq}
+
+To answer these questions, the thesis assembles a quarterly panel of Austrian districts and estimates panel local projections \citep{jorda2005} in which high-frequency ECB monetary policy surprises \citep{altavilla2019} are interacted with a district-level classification of supply constraints based on the local scarcity of developable land. Its contribution is to provide the first district-level evidence for Austria on the supply side of monetary policy transmission to housing, joining a mechanism established for the United States \citep{aastveit2022} with a regional dimension that existing Euro Area studies have addressed only through the structure of mortgage finance \citep{battistini2025}.
+
+The remainder of the thesis is organized as follows. Chapter~\ref{sec:background} sets out the monetary policy and Austrian housing market background. Chapter~\ref{sec:literature} reviews the literature on monetary transmission to housing and the moderating role of supply constraints, and develops the testable hypotheses that correspond to the three research questions above. Chapter~\ref{sec:data} describes the data and the construction of the panel, Chapter~\ref{sec:strategy} the empirical strategy, and Chapter~\ref{sec:results} the results. Chapter~\ref{sec:discussion} discusses the findings in light of the literature and answers the research questions, and Chapter~\ref{sec:con} concludes.
 
 % =============================================================================
 %  2. INSTITUTIONAL AND ECONOMIC BACKGROUND
@@ -268,19 +275,19 @@ The literature reviewed in the preceding subsections supports a clear mechanism 
 
 The first hypothesis concerns the magnitude of the response. If inelastic supply causes a demand impulse to be absorbed in prices rather than in new construction, as the geography of supply and the evidence on United States metropolitan areas imply \citep{saiz2010, aastveit2022}, then a monetary easing surprise should raise prices by more where developable land is scarce. This is the direct counterpart of the primary research question, namely whether local supply constraints moderate the price response to monetary policy.
 
-\begin{hyp}
+\begin{hyp}\label{hyp:magnitude}
 	A monetary easing surprise raises district-level real estate prices by more in supply-inelastic districts than in supply-elastic districts.
 \end{hyp}
 
 The second hypothesis concerns the persistence of that response over time. Because the housing stock is durable and cannot contract quickly, a price differential opened by an easing surprise should not be eroded rapidly by new supply where land is scarce, so that the gap between inelastic and elastic districts widens or holds rather than reverses over the horizons considered \citep{glaeser2005}. This bears on the temporal sub-question, which follows the response over a three-year window.
 
-\begin{hyp}
+\begin{hyp}\label{hyp:persistence}
 	The differential price response in supply-inelastic districts is more persistent over the three-year horizon than in supply-elastic districts.
 \end{hyp}
 
 The third hypothesis concerns asymmetry across the phases of monetary policy. The durable-housing literature implies that supply can accommodate a contraction in demand even less readily than it accommodates an expansion, so that the amplifying role of supply constraints should be concentrated in monetary easing rather than in tightening \citep{glaeser2005, aastveit2022}. Whether the tightening response is likewise shaped by supply conditions is contested in the literature \citep{albuquerque2024}, which makes the sign of the asymmetry an empirical question worth posing directly. This corresponds to the sub-question on whether transmission is asymmetric across monetary policy phases.
 
-\begin{hyp}
+\begin{hyp}\label{hyp:asymmetry}
 	The moderating role of supply constraints is asymmetric across monetary policy phases, with the amplification concentrated in easing rather than in tightening.
 \end{hyp}
 
