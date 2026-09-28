@@ -104,11 +104,16 @@ style = apa]
 \setkomafont{caption}{\small}
 \setkomafont{captionlabel}{\small\bfseries}
 \newcommand{\figtitle}[1]{\textbf{#1}\newline}
+% \figcap{title}{note}: full caption in the document (bold title + note), but only
+% the title in the lists of figures/tables via the optional short-caption argument.
+% Use \figcap{title}{} for a title-only caption (no descriptive note).
+\newcommand{\figcap}[2]{\caption[#1]{\textbf{#1}\newline #2}}
 \numberwithin{equation}{section}
 \title{Monetary Policy Transmission and Building Land Scarcity:\\ A Panel Local Projections Analysis of Regional Austrian Housing Markets}
 \date{\today}
 \author{Lea Schwabe\\(11908829)\\[0.47cm]Supervisor:\\Assoz.~Prof.~Mag.~Dr.~Paul Pichler}
 \begin{document}
+\pagenumbering{roman} % front matter: roman numerals (title = i, invisible)
 \begin{titlingpage}
 \maketitle
 \begin{abstract}
@@ -120,7 +125,7 @@ style = apa]
 \end{abstract}
 \end{titlingpage}
 \newpage
-\thispagestyle{empty}
+\thispagestyle{empty} % acknowledgements = ii, number suppressed
 \vspace*{6.5cm}
 \begin{center}
 \textbf{Acknowledgements}
@@ -128,10 +133,13 @@ style = apa]
 \vspace*{-17pt}
 % Acknowledgements text goes here.
 \newpage
-\tableofcontents
-\thispagestyle{empty}
+\tableofcontents % ToC = iii, first visible roman page
 \clearpage
-\pagenumbering{arabic} 
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+\pagenumbering{arabic} % body: arabic, restarting at 1 
 
 % =============================================================================
 %  1. INTRODUCTION
@@ -146,17 +154,19 @@ style = apa]
 
 \subsection{Motivation}\label{subsec:motivation}
 
-In the years after the global financial crisis, the European Central Bank pushed monetary policy well beyond the conventional adjustment of the policy rate. First through large-scale asset purchases and later through rapid monetary tightening \citep{benigno2023}. Over the same period, residential property prices in Austria rose steeply through 2021 and then corrected from 2022 onward, tracking the broad arc of monetary conditions \citep{belabed2022, hildebrandt2023}. How monetary policy is transmitted to house prices is by now well documented, yet a common monetary impulse does not reach every regional housing market in the same way. Where the local housing stock can expand readily, a demand impulse is absorbed in new construction, whereas where developable land is scarce it is absorbed in prices \citep{saiz2010, aastveit2022}. Austria, with its pronounced geographic variation in the availability of building land, is a natural setting in which to examine this mechanism, yet the regional transmission of monetary policy to housing within the Euro Area has so far been traced to the structure of mortgage finance rather than to supply conditions \citep{battistini2025}, and it has not been isolated for Austria at the district level, the level at which supply constraints actually vary. The background developed in the following two chapters shows both why this mechanism is plausible and that it has not yet been tested in this setting.
+In the period after the global financial crisis, the European Central Bank employed several monetary policy tools beyond the conventional adjustment of the policy rate. The subsequent years of Euro Area monetary policy are characterized first by large-scale asset purchases and later by rapid monetary tightening \citep{benigno2023}. Over the same period, residential property prices in Austria increased significantly through 2021 and then corrected from 2022 onward, tracking the broad development of monetary conditions \citep{belabed2022, hildebrandt2023}. While the transmission mechanism of monetary policy to residential real estate prices is by now well documented, there is a strand of literature that argues that such effects are heterogeneous across regional housing markets.
+
+Local supply conditions are crucial. In regions where the local housing stock can expand readily, a demand impulse can be absorbed through new construction, whereas in regions where developable land is scarce, such an impulse is absorbed through prices \citep{saiz2010, aastveit2022}. Austria, with its pronounced geographic variation in the availability of building land, is a natural setting in which to examine this mechanism. The regional transmission of monetary policy to housing within the Euro Area has so far been traced to the structure of mortgage finance rather than to supply conditions \citep{battistini2025}. The interaction between monetary policy, supply elasticities, and structural features of regional housing markets highlights the relevance of a regional analysis when assessing effects of ECB policy in Austria. While the theoretical and institutional framework establish the link of supply constraints to price dynamics, the differential impact of monetary policy shocks on regional Austrian housing markets has not been empirically isolated. This is precisely the research gap this thesis addresses.
 
 \subsection{Research Question and Contribution}\label{subsec:rq}
 
-This thesis is guided by a single overarching question.
+The primary objective of this thesis is to examine the moderating role of regional supply elasticity in the transmission of Euro Area monetary policy to residential real estate prices in Austrian districts. The central aim is to analyze whether regional housing markets exhibit systematic heterogeneity driven by structural supply constraints, motivating the primary research question.
 
 \begin{mainrq}\label{rq:main}
 	To what extent do local supply constraints moderate the dynamic response of district-level residential real estate prices to ECB monetary policy shocks in Austria?
 \end{mainrq}
 
-This question is pursued along three dimensions, which the empirical analysis addresses in turn.
+The primary research question is examined along three dimensions, which the empirical analysis addresses in turn.
 
 \begin{researchq}\label{rq:magnitude}
 	Does a monetary easing surprise raise district-level real estate prices by more in supply-inelastic than in supply-elastic districts?
@@ -168,9 +178,9 @@ This question is pursued along three dimensions, which the empirical analysis ad
 	Does the moderating role of supply constraints differ between the easing and tightening phases of monetary policy?
 \end{researchq}
 
-To answer these questions, the thesis assembles a quarterly panel of Austrian districts and estimates panel local projections \citep{jorda2005} in which high-frequency ECB monetary policy surprises \citep{altavilla2019} are interacted with a district-level classification of supply constraints based on the local scarcity of developable land. Its contribution is to provide the first district-level evidence for Austria on the supply side of monetary policy transmission to housing, joining a mechanism established for the United States \citep{aastveit2022} with a regional dimension that existing Euro Area studies have addressed only through the structure of mortgage finance \citep{battistini2025}.
+To answer these questions, this thesis employs a quarterly panel of Austrian districts and estimates panel local projections \citep{jorda2005} in which high-frequency ECB monetary policy surprises \citep{altavilla2019} are interacted with a district-level classification of supply constraints based on the local scarcity of developable land. Its contribution is to provide district-level evidence for Austria on the supply side of monetary policy transmission to housing, joining a mechanism established for the United States \citep{aastveit2022} with a regional dimension that existing Euro Area studies have addressed through the structure of mortgage finance \citep{battistini2025}.
 
-The remainder of the thesis is organized as follows. Chapter~\ref{sec:background} sets out the monetary policy and Austrian housing market background. Chapter~\ref{sec:literature} reviews the literature on monetary transmission to housing and the moderating role of supply constraints, and develops the testable hypotheses that correspond to the three research questions above. Chapter~\ref{sec:data} describes the data and the construction of the panel, Chapter~\ref{sec:strategy} the empirical strategy, and Chapter~\ref{sec:results} the results. Chapter~\ref{sec:discussion} discusses the findings in light of the literature and answers the research questions, and Chapter~\ref{sec:con} concludes.
+The remainder of the thesis is organized as follows. Chapter~\ref{sec:background} examines the economic and institutional framework of Euro Area monetary policy and Austrian housing markets. Chapter~\ref{sec:literature} reviews the literature on monetary policy transmission to housing and the moderating role of supply constraints, and develops the testable hypotheses that correspond to the research questions above. Chapter~\ref{sec:data} describes the data and the construction of the panel, Chapter~\ref{sec:strategy} the empirical strategy, and Chapter~\ref{sec:results} the results. Chapter~\ref{sec:discussion} discusses the findings considering the literature and answers the research questions, and Chapter~\ref{sec:con} concludes.
 
 % =============================================================================
 %  2. INSTITUTIONAL AND ECONOMIC BACKGROUND
@@ -198,7 +208,7 @@ Residential property prices in Austria have followed a long upward trajectory th
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/10_oenb_price_index.pdf}
-	\caption{\figtitle{Austrian residential property prices}Residential property price index: Q1 2000 = 100. Shaded areas: asset purchase program (APP), pandemic emergency purchase program (PEPP), tightening cycle. Source: \citet{oenb_propertyprices}.}\label{fig:oenb-prices}
+	\figcap{Austrian residential property prices}{Residential property price index: Q1 2000 = 100. Shaded areas: asset purchase program (APP), pandemic emergency purchase program (PEPP), tightening cycle. Source: \citet{oenb_propertyprices}.}\label{fig:oenb-prices}
 \end{figure}
 
 The upward trend steepened after 2020. Through 2021 residential price growth in Austria ran above 10\% y-o-y, reaching a peak of 12.6\% in Q4 2021, with prices outside Vienna rising even faster than in the capital \citep{belabed2022}. The acceleration was accompanied by a rising degree of estimated overvaluation, and by supply-side pressures particular to the pandemic, as shortages of materials and higher construction costs constrained the completion of new housing and added to the pressure on prices \citep{belabed2022}. The combination of expanding demand under low financing costs and a constrained supply response is precisely the configuration in which a demand impulse feeds into prices rather than quantities.
@@ -216,7 +226,7 @@ Credit conditions nonetheless shaped the cycle in an important way, as Figure~\r
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/11_oenb_housing_credit.pdf}
-	\caption{\figtitle{Housing credit to private households}Bars: growth of the outstanding stock of housing loans to private households (\% y-o-y); Line: average interest rate on new housing loans to households (\%, right axis). Source: \citet{oenb_mortgagevol, oenb_mortgagerates}.}\label{fig:oenb-credit}
+	\figcap{Housing credit to private households}{Bars: growth of the outstanding stock of housing loans to private households (\% y-o-y); Line: average interest rate on new housing loans to households (\%, right axis). Source: \citet{oenb_mortgagevol, oenb_mortgagerates}.}\label{fig:oenb-credit}
 \end{figure}
 
 \subsection{Regional Housing Market Heterogeneity}\label{subsec:regional-heterogeneity}
@@ -324,7 +334,7 @@ The weights are fixed at their 2011 values so that they predate the estimation w
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/02_price_indexes_property_type.pdf}
-	\caption{\figtitle{District price indices by property type}Unweighted district medians, Q1 2017 = 100.}\label{fig:price-indexes}
+	\figcap{District price indices by property type}{Unweighted district medians, Q1 2017 = 100.}\label{fig:price-indexes}
 \end{figure}
 
 Averaged over all district-quarter observations, that is, across the 116 districts and 36 quarters of the panel, the composite price is roughly € 3 260 per m², with a standard deviation across those district-quarter observations of about € 1 590 and a range that spans from under € 900 to over € 13 000 per m². This wide dispersion is the first indication of substantial regional heterogeneity in Austrian housing markets. The house and apartment series differ markedly in level, with average house prices around € 4 200 per m² exceeding average apartment prices of about € 2 870 per m². Both series are right-skewed, so that a small number of high-price districts sit well above the median. The evidence presented is descriptive and is not intended to support causal claims, since the differences reported can reflect urbanity, dwelling composition, income, and other district characteristics rather than the transmission of monetary policy. The purpose is to establish that the data contain economically meaningful regional heterogeneity in price levels, price dynamics, and supply conditions, and to surface the features that shape the specification and interpretation of the local projections analysis.
@@ -338,7 +348,7 @@ The presence of price momentum has a direct methodological implication. If lagge
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/05_acf_pacf_composite_growth.pdf}
-	\caption{\figtitle{Autocorrelation and partial autocorrelation of quarterly composite price growth}Pooled within-district estimates by lag. Dashed lines mark the approximate white-noise significance band, $\pm 1.96/\sqrt{n}$.}\label{fig:acf-pacf}
+	\figcap{Autocorrelation and partial autocorrelation of quarterly composite price growth}{Pooled within-district estimates by lag. Dashed lines mark the approximate white-noise significance band, $\pm 1.96/\sqrt{n}$.}\label{fig:acf-pacf}
 \end{figure}
 
 \subsection{Monetary Policy Shocks}\label{subsec:shock-data}
@@ -349,7 +359,7 @@ The event-level surprises are aggregated to the quarterly frequency of the panel
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/10_shock_signed_components.pdf}
-	\caption{\figtitle{Quarterly monetary policy shock components}Easing surprises denoted as negative, tightening surprises denoted as positive; points = net quarterly sum}\label{fig:shock-components}
+	\figcap{Quarterly monetary policy shock components}{Easing surprises denoted as negative, tightening surprises denoted as positive; points = net quarterly sum}\label{fig:shock-components}
 \end{figure}
 
 A preliminary diagnostic examines how far the quarterly net sum conceals offsetting surprises within a quarter. The cancellation ratio, defined as the net shock (net sum of shocks in a quarter) divided by the absolute sum of surprises in a quarter, has a mean of about 0.69, which indicates that easing and tightening surprises frequently occur within the same quarter and partly offset in the net measure. The ratio is a diagnostic rather than an additional regressor, and the extent of within-quarter cancellation motivates an asymmetric specification that separates the easing and tightening components of the shock, which the empirical strategy adopts as an alternative specification.
@@ -373,7 +383,7 @@ Several series require construction at the tail of the sample, where source data
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/14_key_correlation_heatmap.pdf}
-	\caption{\figtitle{Pairwise correlations of key variables}Pooled Pearson correlations over all district-quarter observations, computed on pairwise-complete cases.}\label{fig:key-correlations}
+	\figcap{Pairwise correlations of key variables}{Pooled Pearson correlations over all district-quarter observations, computed on pairwise-complete cases.}\label{fig:key-correlations}
 \end{figure}
 
 Figure~\ref{fig:key-correlations} reports the pairwise correlations among the outcome, the controls, the shock and its signed components, the supply measures, and the shock-by-inelastic interaction. The matrix serves two purposes, it documents that the shock behaves as an external regressor with respect to district characteristics, and it surfaces one strong association that shapes the interpretation of the results.
@@ -510,20 +520,20 @@ Although the differential is not statistically distinguishable from zero, two fe
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/20_irf_baseline_continuous.pdf}
-	\caption{\figtitle{Differential price response, binary and continuous supply measures}Cumulative differential response of the composite price to a one-standard-deviation easing surprise, in percent. Left, binary inelastic classification; right, continuous building land reserve (per standard deviation). Shaded bands are 95\% Driscoll-Kraay confidence intervals. The two panels use different units and are compared on shape and precision, not level.}\label{fig:irf-baseline-continuous}
+	\figcap{Differential price response, binary and continuous supply measures}{Cumulative differential response of the composite price to a one-standard-deviation easing surprise, in \%. Left: binary inelastic classification; right: continuous building land reserve (per standard deviation). Shaded bands are 95\% Driscoll-Kraay confidence intervals. The two panels use different units and are compared on shape and precision, not level.}\label{fig:irf-baseline-continuous}
 \end{figure}
 
 The continuous specification (\textbf{AS3}), shown in the right panel of Figure~\ref{fig:irf-baseline-continuous}, traces a similar profile. Its response is slightly negative at the first horizons, positive from around three quarters ahead, and rising to a peak between horizons seven and nine before receding. What distinguishes it from the binary specification is its precision, not its shape. The standard errors are roughly half as wide at most horizons, as the columns of Table~\ref{tab:irf-baseline} show, so that the confidence interval narrows around the same path. At the longer horizons the lower bound of the interval approaches zero without crossing it, so that the differential comes close to being distinguishable from zero. This is the pattern the argument in Section~\ref{subsec:robustness-strategy} anticipated, since retaining the full gradient of supply conditions rather than a binary split uses the cross-sectional variation more efficiently and sharpens the estimate of the same underlying response. Read together, the two specifications describe a delayed, positively signed differential of modest size, estimated imprecisely under the binary split and more sharply, though still short of conventional significance, when supply conditions enter continuously. The raw coefficients at every horizon are reported in Appendix Table~\ref{tab:raw-baseline}.
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Baseline differential response, binary and continuous supply measures}Response to a one-standard-deviation easing surprise, in percent, at selected horizons.}\label{tab:irf-baseline}
+	\figcap{Baseline differential response, binary and continuous supply measures}{Response to a one-standard-deviation easing surprise, in \%, at selected horizons.}\label{tab:irf-baseline}
 	\input{tables/irf_baseline.tex}
 
 	\vspace{0.2cm}
 	\begin{minipage}{0.9\textwidth}
 		\footnotesize
-		\textit{Note.} Estimates are the cumulative differential response of the composite price to a one-standard-deviation easing surprise, in percent, with Driscoll-Kraay standard errors and 95\% confidence intervals. The binary coefficient is a difference between supply-inelastic and supply-elastic districts; the continuous coefficient is per standard deviation of the building land reserve, and the two are not comparable in magnitude.
+		\textit{Note.} Estimates are the cumulative differential response of the composite price to a one-standard-deviation easing surprise, in \%, with Driscoll-Kraay standard errors and 95\% confidence intervals. The binary coefficient is a difference between supply-inelastic and supply-elastic districts; the continuous coefficient is per standard deviation of the building land reserve, and the two are not comparable in magnitude.
 	\end{minipage}
 \end{table}
 
@@ -535,7 +545,7 @@ The alternative specifications characterize the response rather than test its du
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/21_irf_asymmetric_binary.pdf}
-	\caption{\figtitle{Asymmetric differential response, binary supply measure}Cumulative differential response to a one-standard-deviation easing (left) and tightening (right) surprise, in percent, by horizon in quarters, under the binary inelastic classification. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-binary}
+	\figcap{Asymmetric differential response, binary supply measure}{Cumulative differential response to a one-standard-deviation easing (left) and tightening (right) surprise, in \%, by horizon in quarters, under the binary inelastic classification. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-binary}
 \end{figure}
 
 The continuous supply-measure sharpens this picture. Estimating the same decomposition with the building land reserve entered continuously, on the same per-standard-deviation-of-reserve scale as in the baseline, Figure~\ref{fig:irf-asymmetric-continuous} shows an easing response that is distinguishable from zero at the longer horizons, with a differential of about 0.23\% at horizon nine (confidence interval $[0.01, 0.46]$) and about 0.14\% at horizon twelve (confidence interval $[0.01, 0.27]$), where the interval excludes zero. The tightening response remains centered on zero throughout, with intervals that always contain zero. The easing differential is therefore distinguishable from zero at these horizons while the tightening differential is not, a pattern that is consistent with an asymmetry in which the amplification of the price response in supply-constrained districts operates through monetary easing rather than through tightening. The difference between the two responses is not itself formally tested, so the asymmetry is read as suggestive rather than established. What the estimates show directly is that only the easing side attains a differential distinguishable from zero. This is nonetheless the sharpest evidence in the analysis for the hypothesized channel, and its placement at the longer horizons is consistent with the delayed build seen in the level response. It should be read under the stipulation that these are the horizons at which the estimation sample is smallest and the Driscoll-Kraay lag longest, so the precision is most fragile precisely where the differential clears zero. The raw easing and tightening coefficients for both the binary and the continuous decomposition are reported in Appendix Tables~\ref{tab:raw-asymmetric-binary} and~\ref{tab:raw-asymmetric-continuous}.
@@ -543,7 +553,7 @@ The continuous supply-measure sharpens this picture. Estimating the same decompo
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/22_irf_asymmetric_continuous.pdf}
-	\caption{\figtitle{Asymmetric differential response, continuous supply measure}Cumulative differential response per standard deviation of the building land reserve to a one-standard-deviation easing (left) and tightening (right) surprise, in percent, by horizon in quarters. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-continuous}
+	\figcap{Asymmetric differential response, continuous supply measure}{Cumulative differential response per standard deviation of the building land reserve to a one-standard-deviation easing (left) and tightening (right) surprise, in \%, by horizon in quarters. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-asymmetric-continuous}
 \end{figure}
 
 \textbf{(AS1) Property-specific outcomes.} Estimating the house and apartment series as separate outcomes probes whether the composite result reflects a common response of both segments or is driven by one of them. In its unweighted form, however, this split is uninformative by construction, since it estimates each segment's response with equal weight across all districts. Given the heterogeneity of the district housing stock documented in Section~\ref{subsec:price-data}, where many districts are almost entirely houses or almost entirely apartments, each segment regression is then dominated in part by districts where that segment is a negligible share of the local market and its measured price is thin and noisy. The resulting estimates, reported in Appendix~\ref{fig:irf-property-naive}, are correspondingly imprecise, with wide intervals and no clear or interpretable profile in either series, and are best read as a motivation for the weighted specification rather than as a result in their own right.
@@ -553,7 +563,7 @@ The continuous supply-measure sharpens this picture. Estimating the same decompo
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/24_irf_property_weighted.pdf}
-	\caption{\figtitle{Stock-weighted property-specific differential response}Cumulative differential response of the house (left) and apartment (right) price per standard deviation of the building land reserve to a one-standard-deviation easing surprise, in percent, by horizon in quarters. Each segment is estimated by weighted least squares, weighting district-quarters by that segment's fixed stock share. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-property-weighted}
+	\figcap{Stock-weighted property-specific differential response}{Cumulative differential response of the house (left) and apartment (right) price per standard deviation of the building land reserve to a one-standard-deviation easing surprise, in \% , by horizon in quarters. Each segment is estimated by weighted least squares, weighting district-quarters by that segment's fixed stock share. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-property-weighted}
 \end{figure}
 
 \subsection{Robustness Checks}\label{subsec:robustness}
@@ -564,14 +574,14 @@ The robustness checks then vary an estimation or sample choice while leaving the
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/23_irf_robustness.pdf}
-	\caption{\figtitle{Robustness of the differential response}Cumulative differential response to a one-standard-deviation easing surprise, in percent, by horizon in quarters, for the baseline and two robustness checks. Point estimates only; confidence intervals are omitted for legibility and are reported at focal horizons in Table~\ref{tab:robustness-focal}.}\label{fig:irf-robustness}
+	\figcap{Robustness of the differential response}{Cumulative differential response to a one-standard-deviation easing surprise, in \%, by horizon in quarters, for the baseline and two robustness checks. Point estimates only; confidence intervals are omitted for legibility and are reported at focal horizons in Table~\ref{tab:robustness-focal}.}\label{fig:irf-robustness}
 \end{figure}
 
 Table~\ref{tab:robustness-focal} reports the estimate and confidence interval for every check at the peak horizon, seven quarters ahead, and at the end of the window, twelve quarters ahead. Three patterns are worth noting. First, the peak estimate is stable across the instrument and the classification threshold, ranging from about 0.21\% to 0.32\% under the German bond instruments and the alternative percentile cut-offs, close to the baseline value of about 0.25\%. Second, two checks move the estimate as the data chapter anticipated. Excluding Vienna roughly halves the peak differential, to about 0.13\%, and estimating on the pre-tail sample that drops the extrapolated control observations turns the peak slightly negative, which confirms that the constructed tail contributes to the short-run estimate and motivates its treatment as a sensitivity check. Third, the confidence intervals continue to contain zero at both horizons for every check, with one exception, the lag-augmented estimator, whose heteroskedasticity-robust interval excludes zero at the peak horizon (about 0.25\% with interval $[0.01, 0.49]$). Since the lag-augmented estimator shares the baseline point estimate and differs only in the standard error, this indicates that the baseline differential at the peak is distinguishable from zero under an inference procedure whose validity does not rest on the growing time dimension that the Driscoll-Kraay correction assumes, which is reassuring given the short panel, though it remains a single horizon under a single estimator and is not treated as decisive on its own.
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Differential response across robustness checks at focal horizons}Response to a one-standard-deviation easing surprise, in percent, at horizons seven and twelve.}\label{tab:robustness-focal}
+	\figcap{Differential response across robustness checks at focal horizons}{Response to a one-standard-deviation easing surprise, in percent, at horizons seven and twelve.}\label{tab:robustness-focal}
 	\input{tables/robustness_focal.tex}
 
 	\vspace{0.2cm}
@@ -615,11 +625,18 @@ Table~\ref{tab:robustness-focal} reports the estimate and confidence interval fo
 
 \newpage
 \appendix
+% Appendix floats are numbered A.1, A.2, ... (distinct from the body's 1, 2, ...)
+% and reset here so they restart at 1 within the appendix. This also makes their
+% entries in the lists of figures/tables identifiable as appendix material.
+\counterwithin{table}{section}
+\counterwithin{figure}{section}
+\setcounter{table}{0}
+\setcounter{figure}{0}
 \section{Appendix}\label{sec:appendix}
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Summary statistics of the analysis variables}}\label{tab:summary-stats}
+	\figcap{Summary statistics of the analysis variables}{}\label{tab:summary-stats}
 	\input{tables/summary_stats.tex}
 
 	\vspace{0.2cm}
@@ -631,13 +648,13 @@ Table~\ref{tab:robustness-focal} reports the estimate and confidence interval fo
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Panel construction and integrity diagnostics}}\label{tab:panel-integrity}
+	\figcap{Panel construction and integrity diagnostics}{}\label{tab:panel-integrity}
 	\input{tables/panel_integrity.tex}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Residual dependence of the baseline specification}}\label{tab:residual-dependence}
+	\figcap{Residual dependence of the baseline specification}{}\label{tab:residual-dependence}
 	\input{tables/residual_dependence.tex}
 
 	\vspace{0.2cm}
@@ -650,54 +667,54 @@ Table~\ref{tab:robustness-focal} reports the estimate and confidence interval fo
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=14cm]{charts/A1_irf_property_specific.pdf}
-	\caption{\figtitle{Property-specific differential response, unweighted}Cumulative differential response of the house (left) and apartment (right) price to a one-standard-deviation easing surprise, in percent, by horizon in quarters, under the binary inelastic classification and without stock weighting. Shaded bands are 95\% Driscoll-Kraay confidence intervals. This unweighted split is the motivating specification for the stock-weighted estimates in Section~\ref{subsec:alt-responses}.}\label{fig:irf-property-naive}
+	\figcap{Property-specific differential response, unweighted}{Cumulative differential response of the house (left) and apartment (right) price to a one-standard-deviation easing surprise, in \%, by horizon in quarters, under the binary inelastic classification and without stock weighting. Shaded bands are 95\% Driscoll-Kraay confidence intervals.}\label{fig:irf-property-naive}
 \end{figure}
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Baseline and continuous (AS3) specifications, raw coefficients}Estimated interaction coefficient per horizon $h$.}\label{tab:raw-baseline}
+	\figcap{Baseline and continuous (AS3) specifications, coefficients}{Estimated interaction coefficient per horizon $h$.}\label{tab:raw-baseline}
 	\input{tables/raw_baseline.tex}
 
 	\vspace{0.2cm}
 	\begin{minipage}{0.9\textwidth}
 		\footnotesize
-		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$: number of district-quarter observations per horizon. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative coefficient corresponds to a larger price increase in supply-inelastic districts following monetary easing. Percent response to a one-standard-deviation easing surprise reported in the text: $\beta_h ~x ~-SD ~x ~100$ (SD = 2.66). The continuous coefficient is per one standard deviation of the building land reserve.
+		\textit{Note.} Coefficients per one-basis-point OIS 20Y surprise, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$: number of district-quarter observations per horizon. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative coefficient corresponds to a larger price increase in supply-inelastic districts following monetary easing. Percent response to a one-standard-deviation easing surprise reported in the text: $\beta_h ~x ~-SD ~x ~100$ (SD = 2.66). The continuous coefficient is per one standard deviation of the building land reserve.
 	\end{minipage}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Asymmetric specification (AS2), binary classification, raw coefficients}Estimated easing and tightening interaction coefficients per horizon $h$.}\label{tab:raw-asymmetric-binary}
+	\figcap{Asymmetric specification (AS2), binary classification, coefficients}{Estimated easing and tightening interaction coefficients per horizon $h$.}\label{tab:raw-asymmetric-binary}
 	\input{tables/raw_asymmetric_binary.tex}
 
 	\vspace{0.2cm}
 	\begin{minipage}{0.9\textwidth}
 		\footnotesize
-		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$ is the number of district-quarter observations at each horizon. The easing and tightening components are the within-quarter sums of the negative and positive surprises. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative easing coefficient corresponds to a larger price increase in supply-inelastic districts following monetary easing.
+		\textit{Note.} Coefficients per one-basis-point OIS 20Y surprise, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$: number of district-quarter observations at each horizon. The easing and tightening components are the within-quarter sums of the negative and positive surprises. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative easing coefficient corresponds to a larger price increase in supply-inelastic districts following monetary easing.
 	\end{minipage}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Asymmetric specification (AS2), continuous reserve, raw coefficients}Estimated easing and tightening interaction coefficients per horizon $h$.}\label{tab:raw-asymmetric-continuous}
+	\figcap{Asymmetric specification (AS2), continuous reserve, coefficients}{Estimated easing and tightening interaction coefficients per horizon $h$.}\label{tab:raw-asymmetric-continuous}
 	\input{tables/raw_asymmetric_continuous.tex}
 
 	\vspace{0.2cm}
 	\begin{minipage}{0.9\textwidth}
 		\footnotesize
-		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, interacted with the standardized building land reserve, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$ is the number of district-quarter observations at each horizon. Coefficients are per one standard deviation of the reserve. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative easing coefficient corresponds to a larger price increase in more supply-constrained districts following monetary easing.
+		\textit{Note.} Coefficients per one-basis-point OIS 20Y surprise, interacted with the standardized building land reserve, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$: number of district-quarter observations at each horizon. Coefficients are per one standard deviation of the reserve. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative easing coefficient corresponds to a larger price increase in more supply-constrained districts following monetary easing.
 	\end{minipage}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\caption{\figtitle{Stock-weighted property-specific specification (AS1b), raw coefficients}Estimated interaction coefficient for the house and apartment outcomes per horizon $h$.}\label{tab:raw-property}
+	\figcap{Stock-weighted property-specific specification (AS1b), coefficients}{Estimated interaction coefficient for the house and apartment outcomes per horizon $h$.}\label{tab:raw-property}
 	\input{tables/raw_property.tex}
 
 	\vspace{0.2cm}
 	\begin{minipage}{0.9\textwidth}
 		\footnotesize
-		\textit{Note.} Raw coefficients per one-basis-point OIS 20Y surprise, interacted with the standardized building land reserve, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$ is the number of district-quarter observations at each horizon. Each segment is estimated by weighted least squares, weighting district-quarters by that segment's fixed stock share. Coefficients are per one standard deviation of the reserve. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative coefficient corresponds to a larger price increase in more supply-constrained districts following monetary easing.
+		\textit{Note.} Coefficients per one-basis-point OIS 20Y surprise, interacted with the standardized building land reserve, with Driscoll-Kraay standard errors and 95\% confidence intervals; $N$: number of district-quarter observations at each horizon. Each segment is estimated by weighted least squares, weighting district-quarters by that segment's fixed stock share. Coefficients are per one standard deviation of the reserve. Under the sign convention of Section~\ref{subsec:coef-interpretation} a negative coefficient corresponds to a larger price increase in more supply-constrained districts following monetary easing.
 	\end{minipage}
 \end{table}
 
