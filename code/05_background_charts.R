@@ -20,6 +20,7 @@
 # Outputs:
 #   thesis/charts/10_oenb_price_index.pdf
 #   thesis/charts/11_oenb_housing_credit.pdf
+#   thesis/charts/12_oenb_rate_fixation.pdf   (cite: oenb_mortgageweights)
 #
 # Notes on the source format:
 #   - Column 1 is the period type: "Jahr" (annual), "Quartal" (quarterly),
@@ -279,4 +280,60 @@ p_credit <- ggplot(credit_w, aes(as.numeric(quarter))) +
 ggsave_thesis(file.path(THESIS_FIG_DIR, "11_oenb_housing_credit.pdf"),
               p_credit, height = 8.5)
 
-message("05_background_charts.R complete: wrote 10_oenb_price_index.pdf and 11_oenb_housing_credit.pdf")
+# -----------------------------------------------------------------------------#
+# FIGURE 2.4 - New household housing loans by initial rate fixation (shares)
+# -----------------------------------------------------------------------------#
+## Source: OeNB "Gewichte zu Kreditzinssaetzen - Neugeschaeft" (cite:
+## oenb_mortgageweights), new-business volumes in EUR million, monthly from 2003.
+## The table reports the total (AB000), variable / fixed up to one year (AB012)
+## and fixed 1-5 years (AB013) for housing loans to households. Fixation over
+## five years is the residual: total - up to 1 year - 1 to 5 years (never
+## negative in the data). Shares are volume-weighted per calendar year, i.e. the
+## sum of a category's monthly volumes over the year's total. Only complete
+## calendar years are shown, so the partial current year is dropped.
+## These are NEW-BUSINESS shares, not the fixation structure of the outstanding
+## stock; they show how exposure to rate changes was built up over time.
+wgt_raw <- read_oenb("data/oenb_mortgageweights.csv")
+
+wgt_df <- tibble::tibble(
+  type  = trimws(wgt_raw[[1]]),
+  year  = suppressWarnings(as.integer(wgt_raw[[2]])),
+  month = suppressWarnings(as.integer(wgt_raw[[5]])),
+  value = num_de(wgt_raw[[13]]),
+  code  = trimws(wgt_raw[[14]])
+) %>%
+  filter(type == "Monat", code %in% c("AB000", "AB012", "AB013"), !is.na(value)) %>%
+  tidyr::pivot_wider(names_from = code, values_from = value) %>%
+  mutate(over5 = AB000 - AB012 - AB013)
+
+full_years <- wgt_df %>% count(year) %>% filter(n == 12) %>% pull(year)
+
+fix_labels <- c(upto1 = "Variable or fixed up to 1 year",
+                y1to5 = "Fixed 1 to 5 years",
+                over5 = "Fixed over 5 years")
+
+fix_df <- wgt_df %>%
+  filter(year %in% full_years) %>%
+  group_by(year) %>%
+  summarise(upto1 = sum(AB012), y1to5 = sum(AB013), over5 = sum(over5),
+            total = sum(AB000), .groups = "drop") %>%
+  tidyr::pivot_longer(c(upto1, y1to5, over5), names_to = "fixation", values_to = "vol") %>%
+  mutate(share    = 100 * vol / total,
+         fixation = factor(fix_labels[fixation], levels = rev(unname(fix_labels))))
+
+p_fix <- ggplot(fix_df, aes(year, share, fill = fixation)) +
+  geom_col(width = 0.8) +
+  # Thesis palette in its defined order (plot_theme.R): green, magenta, blue.
+  scale_fill_manual(values = setNames(thesis_palette[1:3], unname(fix_labels)),
+                    breaks = unname(fix_labels), name = NULL) +
+  scale_x_continuous(breaks = seq(min(full_years), max(full_years), by = 2),
+                     expand = c(0.01, 0.01)) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 25),
+                     expand = c(0, 0)) +
+  labs(x = NULL, y = "Share of new housing loans (%)") +
+  theme_thesis()
+
+ggsave_thesis(file.path(THESIS_FIG_DIR, "12_oenb_rate_fixation.pdf"),
+              p_fix, height = 8.5)
+
+message("05_background_charts.R complete: wrote 10_oenb_price_index.pdf, 11_oenb_housing_credit.pdf and 12_oenb_rate_fixation.pdf")
