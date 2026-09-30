@@ -13,6 +13,8 @@
 #   thesis/charts/14_key_correlation_heatmap.pdf        (Figure, Ch. 4.4)
 #   thesis/tables/summary_stats.tex                     (Appendix Table 1a)
 #   thesis/tables/panel_integrity.tex                   (Appendix Table 1b)
+#   thesis/tables/supply_groups.tex                     (Table, Ch. 7.2)
+#   thesis/tables/inelastic_districts.tex               (Appendix, classification)
 #   data/acf_pacf_dQ_composite.csv   (ACF/pACF values)
 # =============================================================================#
 
@@ -456,6 +458,122 @@ tab1b <- c(
   "\\end{tabular}"
 )
 writeLines(tab1b, file.path(LATEX_TAB_DIR, "panel_integrity.tex"), useBytes = TRUE)
+
+# -----------------------------------------------------------------------------#
+# SUPPLY-GROUP TABLES (Discussion 7.2 and Appendix)
+# -----------------------------------------------------------------------------#
+##   supply_groups.tex        -> in-text table (Section 7.2): the inelastic set
+##                               split into Vienna, inelastic statutory cities
+##                               and other inelastic districts, against the
+##                               elastic districts.
+##   inelastic_districts.tex  -> appendix table: the baseline classification,
+##                               listing the 24 inelastic districts outside
+##                               Vienna by federal state, with Vienna summarized
+##                               in one row. All remaining districts are elastic.
+## Group means are unweighted means over districts (each district counts once).
+## The composite price enters as each district's mean over the 36 quarters.
+
+## Statutory cities (Statutarstaedte) are identified by name: their district
+## names contain "Stadt" (e.g. "Stadt Linz", "Graz(Stadt)"), whereas the
+## surrounding political districts carry "Land" or "Umgebung".
+tex_escape <- function(s) gsub("([&%_#$])", "\\\\\\1", s)
+clean_name <- function(s) {
+  s <- enc2utf8(as.character(s))
+  s <- gsub("\\(", " (", s)
+  trimws(gsub("\\s+", " ", s))
+}
+
+district_means <- panel_d %>%
+  group_by(district_id) %>%
+  summarise(p_mean = mean(p_composite), .groups = "drop")
+
+supply_static <- static_district %>%
+  left_join(district_means, by = "district_id") %>%
+  mutate(
+    statutory = grepl("Stadt", district_name) & !grepl("Land|Umgebung", district_name),
+    group = case_when(
+      bundesland_code == 9                 ~ "Vienna municipal districts",
+      inelastic_dummy == 1 & statutory     ~ "Inelastic statutory cities",
+      inelastic_dummy == 1                 ~ "Other inelastic districts",
+      TRUE                                 ~ "Elastic districts"
+    ),
+    group = factor(group, levels = c("Vienna municipal districts",
+                                     "Inelastic statutory cities",
+                                     "Other inelastic districts",
+                                     "Elastic districts"))
+  )
+
+supply_group_tab <- supply_static %>%
+  group_by(group) %>%
+  summarise(n = n(), blr = mean(blr_14), w_house = mean(w_house),
+            price = mean(p_mean), .groups = "drop")
+
+## Sanity check against the classification documented in Section 4
+## (47 inelastic districts, of which 23 Viennese, 69 elastic).
+message("Supply groups (n): ",
+        paste(supply_group_tab$group, supply_group_tab$n, sep = " = ", collapse = "; "))
+
+sg_rows <- paste0(
+  supply_group_tab$group, " & ", tex_int(supply_group_tab$n), " & ",
+  tex_num(supply_group_tab$blr, rep(1, nrow(supply_group_tab))), " & ",
+  tex_num(supply_group_tab$w_house, rep(2, nrow(supply_group_tab))), " & ",
+  tex_num(supply_group_tab$price, rep(0, nrow(supply_group_tab))), " \\\\"
+)
+tab_sg <- c(
+  "\\begin{tabular}{l r r r r}",
+  "\\toprule",
+  "Group & Districts & \\makecell{Building land\\\\reserve (\\%)} & \\makecell{House\\\\weight} & \\makecell{Composite price\\\\(\\euro/m\\textsuperscript{2})} \\\\",
+  "\\midrule",
+  sg_rows,
+  "\\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tab_sg, file.path(LATEX_TAB_DIR, "supply_groups.tex"), useBytes = TRUE)
+
+## Appendix: inelastic districts under the baseline classification.
+state_names <- c(`1` = "Burgenland", `2` = "K\u00e4rnten", `3` = "Nieder\u00f6sterreich",
+                 `4` = "Ober\u00f6sterreich", `5` = "Salzburg", `6` = "Steiermark",
+                 `7` = "Tirol", `8` = "Vorarlberg", `9` = "Wien")
+
+inel_out <- supply_static %>%
+  filter(inelastic_dummy == 1, bundesland_code != 9) %>%
+  mutate(state = state_names[as.character(bundesland_code)],
+         name  = tex_escape(clean_name(district_name))) %>%
+  arrange(bundesland_code, blr_14)
+
+vienna_rng <- supply_static %>% filter(bundesland_code == 9) %>%
+  summarise(n = n(), blr_min = min(blr_14), blr_max = max(blr_14),
+            w_min = min(w_house), w_max = max(w_house))
+
+## Print the state label only on the first row of each state block.
+state_col <- ifelse(duplicated(inel_out$state), "", inel_out$state)
+inel_rows <- paste0(
+  state_col, " & ", inel_out$name, " & ",
+  tex_num(inel_out$blr_14, rep(1, nrow(inel_out))), " & ",
+  tex_num(inel_out$w_house, rep(2, nrow(inel_out))), " \\\\"
+)
+vienna_row <- paste0(
+  "Wien & All ", vienna_rng$n, " municipal districts & ",
+  tex_num(vienna_rng$blr_min, 1), " - ", tex_num(vienna_rng$blr_max, 1), " & ",
+  tex_num(vienna_rng$w_min, 2), " - ", tex_num(vienna_rng$w_max, 2), " \\\\"
+)
+tab_inel <- c(
+  "\\begin{tabular}{l l r r}",
+  "\\toprule",
+  "Federal state & District & \\makecell{Building land\\\\reserve (\\%)} & \\makecell{House\\\\weight} \\\\",
+  "\\midrule",
+  inel_rows,
+  "\\addlinespace",
+  vienna_row,
+  "\\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(enc2utf8(tab_inel), file.path(LATEX_TAB_DIR, "inelastic_districts.tex"), useBytes = TRUE)
+
+## Classification threshold (25th percentile of the reserve outside Vienna),
+## reported for the appendix table note.
+message("Inelastic threshold (p25 outside Vienna): ",
+        round(quantile(supply_static$blr_14[supply_static$bundesland_code != 9], 0.25), 1), "%")
 
 message("Diagnostics complete.")
 message("Charts: ", normalizePath(THESIS_FIG_DIR, winslash = "/", mustWork = FALSE))
