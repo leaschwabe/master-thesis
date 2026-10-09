@@ -336,4 +336,71 @@ p_fix <- ggplot(fix_df, aes(year, share, fill = fixation)) +
 ggsave_thesis(file.path(THESIS_FIG_DIR, "12_oenb_rate_fixation.pdf"),
               p_fix, height = 8.5)
 
+# -----------------------------------------------------------------------------#
+# FIGURE (candidate, Ch. 4.3) - District price change vs building land reserve
+# -----------------------------------------------------------------------------#
+# DISABLED: this descriptive price-change-vs-reserve scatter was explored as a
+# possible Chapter 4.3 figure but not included. Over the sample the raw price
+# change rises with the reserve (a convergence pattern driven by Vienna and the
+# cities), which would set up a tension with the hypotheses that the local
+# projection, not raw growth, is designed to resolve. The reserve map and the
+# Section 4.4 correlation cover the price-reserve relationship instead. Kept
+# commented out in case it is wanted later for the discussion. To re-enable,
+# uncomment and re-run; it writes 42_... and 43_... to thesis/charts.
+#
+# load("./data/01_panel.RData")   # panel
+#
+# price_change_scatter <- function(panel, q_start, q_end, file, groups_only = FALSE) {
+#   wide <- panel %>%
+#     filter(quarter %in% c(q_start, q_end)) %>%
+#     select(district_id, district_name, quarter, p_composite, blr_14) %>%
+#     mutate(end = if_else(quarter == q_end, "p_end", "p_start")) %>%
+#     select(-quarter) %>%
+#     tidyr::pivot_wider(names_from = end, values_from = p_composite) %>%
+#     mutate(
+#       change = 100 * (log(p_end) - log(p_start)),   # cumulative log change, in %
+#       bundesland_code = floor(district_id / 100),
+#       statutory = grepl("Stadt", district_name) & !grepl("Land|Umgebung", district_name),
+#       group = dplyr::case_when(
+#         bundesland_code == 9 ~ "Vienna",
+#         statutory            ~ "Statutory city",
+#         TRUE                 ~ "Rest of Austria"
+#       ),
+#       group = factor(group, levels = c("Rest of Austria", "Statutory city", "Vienna"))
+#     )
+#
+#   grp_cols <- c("Rest of Austria" = "#679c35",   # green  (elastic-leaning default)
+#                 "Statutory city"  = "#FFB04F",   # orange
+#                 "Vienna"          = "#cd1076")   # magenta
+#
+#   ggplot(wide, aes(blr_14, change, colour = group)) +
+#     geom_point(size = 1.6, alpha = 0.9) +
+#     scale_colour_manual(values = grp_cols, breaks = names(grp_cols), name = NULL) +
+#     labs(x = "Building land reserve, 2014 (\u0025)",
+#          y = "Cumulative change in composite price (\u0025)") +
+#     theme_thesis()
+# }
+#
+# q_start <- zoo::as.yearqtr("2017 Q1")
+# q_last  <- zoo::as.yearqtr("2025 Q4")
+#
+# ## Boom cutoff: the quarter at which the cross-district mean composite price is
+# ## highest (computed, not assumed), printed for a sanity check against Ch. 2.2.
+# peak_q <- panel %>%
+#   group_by(quarter) %>%
+#   summarise(m = mean(p_composite), .groups = "drop") %>%
+#   slice_max(m, n = 1) %>%
+#   pull(quarter)
+# message("Composite-price peak quarter (boom cutoff): ", format(peak_q))
+#
+# p_scatter_full <- price_change_scatter(panel, q_start, q_last,
+#                                        "42_price_reserve_scatter_full.pdf")
+# ggsave_thesis(file.path(THESIS_FIG_DIR, "42_price_reserve_scatter_full.pdf"),
+#               p_scatter_full, height = 8)
+#
+# p_scatter_boom <- price_change_scatter(panel, q_start, peak_q,
+#                                        "43_price_reserve_scatter_boom.pdf")
+# ggsave_thesis(file.path(THESIS_FIG_DIR, "43_price_reserve_scatter_boom.pdf"),
+#               p_scatter_boom, height = 8)
+
 message("05_background_charts.R complete: wrote 10_oenb_price_index.pdf, 11_oenb_housing_credit.pdf and 12_oenb_rate_fixation.pdf")
