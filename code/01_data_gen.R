@@ -11,7 +11,7 @@ load("./data/00_prep_output.RData")
 # =============================================================================#
 # 1. PANEL MERGE
 # -----------------------------------------------------------------------------#
-##  - prices (balanced 116 districts x 36 quarters) is the SPINE: all joins are
+##  - prices (balanced 116 districts x 36 quarters): all joins are
 ##    left_joins onto it, so the panel stays balanced
 ##  - Join keys: district_id (+ quarter where time-varying)
 ##  - shock_q: national (quarter-level only): joined on quarter only
@@ -66,7 +66,7 @@ na_by_col <- sapply(panel, function(x) sum(is.na(x)))
 print(na_by_col[na_by_col > 0])
 if (all(na_by_col == 0)) message("Panel merge OK: no missing values in any column.")
 
-## Quick structural glance.
+## Quick structural check
 message("panel dimensions: ", nrow(panel), " x ", ncol(panel))
 
 # =============================================================================#
@@ -78,7 +78,7 @@ message("panel dimensions: ", nrow(panel), " x ", ncol(panel))
 # -----------------------------------------------------------------------------#
 # - ly_composite: log(p_composite)
 # - ly_efh: log(efh_avg)
-# - ly_etw: lof(etw_avg)
+# - ly_etw: log(etw_avg)
 
 # - ly_base: ly_composite{t-1} i.e. y_{t-1}
 # - dep_00: y_t - y_{t-1}
@@ -149,7 +149,7 @@ panel <- panel %>%
 # 2.2 PRICE-MOMENTUM CONTROLS: lagged quarterly log-price changes
 # -----------------------------------------------------------------------------#
 ## Aastveit & Anundsen include lagged changes in log house prices to capture
-## momentum (a key feature of housing markets)
+## momentum
 # - dQ_composite: one-quarter log change of p_composite
 # - dQ_lag1 - dQ_lag4: include 4 lags if p_composite log-changes (as in Aastveit & Anundsen)
 
@@ -205,7 +205,7 @@ panel <- panel %>%
 ##                  (first difference of the rate, NOT a log-difference, since
 ##                  the series is already a percentage)
 ##
-## CAVEAT (imputed tails): income (2023-2025 via TLI) and unemployment (2025
+## Imputed tails: income (2023-2025 via TLI) and unemployment (2025
 ## carried forward) are annual figures repeated within the year, so their
 ## quarterly changes are ~0 within those spans. This is expected;
 ## these controls simply carry little within-district variation in the imputed

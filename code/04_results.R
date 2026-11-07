@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------#
 # Reads the estimation results saved by 03_estimation.R and produces the
 # impulse-response figures and coefficient tables for the thesis. This script
-# does no estimation; re-run it freely for design tweaks without re-estimating.
+# does no estimation.
 #
 # Effect scaling. The estimated interaction coefficients are per one raw unit of
 # the OIS 20Y surprise. Every reported effect is scaled to the response to a
@@ -11,7 +11,7 @@
 # (coef x shock_sd x 100). The easing sign convention (Section 5.4) is already
 # applied in 03 (coef is the response to an easing surprise). Note the binary and
 # continuous specifications are in different units (binary group differential vs.
-# per one standard deviation of the reserve); compare shape and precision, not
+# per one standard deviation of the reserve); compares shape and precision, not
 # levels.
 #
 # Outputs:
@@ -59,8 +59,7 @@ sub <- function(s) res %>% filter(spec == s)
 
 # Shared IRF styling. Horizontal integer x labels, a slightly smaller axis title
 # than the theme default (the IRF figures are shorter than the chapter-4 charts,
-# so the title otherwise reads too large), and a common y-axis label. The "per
-# 1-SD easing surprise" scaling is stated in each figure caption, not the axis.
+# so the title otherwise reads too large), and a common y-axis label. 
 irf_style <- list(
   theme(axis.text.x  = element_text(angle = 0, hjust = 0.5),
         axis.title   = element_text(size = 8),

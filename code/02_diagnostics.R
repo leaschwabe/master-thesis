@@ -1,13 +1,13 @@
 # =============================================================================#
 # 02_DIAGNOSTICS
 # -----------------------------------------------------------------------------#
-# Produces exactly the figures and tables that enter the thesis, and nothing
-# else. This script does not modify 00_data_prep.R, 01_data_gen.R, or their
+# Produces the figures and tables that enter the thesis. This script does not modify
+# 00_data_prep.R, 01_data_gen.R, or their
 # saved objects; all diagnostic-only flags and transformations are built in
 # memory.
 #
 # Outputs:
-#   thesis/charts/02_price_indexes_property_type.pdf   (Figure, Ch. 4.1)
+#   thesis/charts/02_price_indexes_property_type.pdf    (Figure, Ch. 4.1)
 #   thesis/charts/10_shock_signed_components.pdf        (Figure, Ch. 4.2)
 #   thesis/charts/05_acf_pacf_composite_growth.pdf      (Figure, Ch. 4.1)
 #   thesis/charts/14_key_correlation_heatmap.pdf        (Figure, Ch. 4.4)
@@ -15,7 +15,7 @@
 #   thesis/tables/panel_integrity.tex                   (Appendix Table 1b)
 #   thesis/tables/supply_groups.tex                     (Table, Ch. 7.2)
 #   thesis/tables/inelastic_districts.tex               (Appendix, classification)
-#   data/acf_pacf_dQ_composite.csv   (ACF/pACF values)
+#   data/acf_pacf_dQ_composite.csv                      (ACF/pACF values)
 # =============================================================================#
 
 # Resolve the repository root when run via Rscript from any working directory.

@@ -24,14 +24,14 @@
 #
 # Notes on the source format:
 #   - Column 1 is the period type: "Jahr" (annual), "Quartal" (quarterly),
-#     "Monat" (monthly). We use quarterly for prices and monthly for credit
+#     "Monat" (monthly). Use quarterly for prices and monthly for credit
 #     (aggregated to quarterly below).
 #   - Column 2 is the year. For "Quartal" rows column 4 is the running quarter
 #     (1-4); for "Monat" rows column 5 is the month (01-12).
-#   - The last column is a stable series code; we filter on it rather than on
+#   - The last column is a stable series code; Filter on it rather than on
 #     the (umlaut-mangled) German description so the selection is robust.
 #   - Values sit in the second-to-last usable numeric column; missing = "x".
-#   - Stocks (Bestand) are levels: we take the END-OF-QUARTER value. Rates are
+#   - Stocks (Bestand) are levels: Take the END-OF-QUARTER value. Rates are
 #     averaged (quarterly mean). YoY growth is the 4-quarter change of the stock.
 ###############################################################################
 
@@ -49,8 +49,8 @@ dir.create(THESIS_FIG_DIR, recursive = TRUE, showWarnings = FALSE)
 # --- Helpers ----------------------------------------------------------------
 
 ## Read an OeNB ISAWEBSTAT export. The files have no header row; every line is
-## one (period, series) record. We read all columns as character and name the
-## ones we need. Encoding is latin1 (umlauts), separator ";", decimals ",".
+## one (period, series) record. Read all columns as character and name the
+## ones needed. Encoding is latin1 (umlauts), separator ";", decimals ",".
 read_oenb <- function(path) {
   raw <- utils::read.table(
     path, sep = ";", header = FALSE, quote = "", comment.char = "",
@@ -68,7 +68,7 @@ num_de <- function(x) {
 }
 
 ## The series code is the last non-empty field of each row; the value is the
-## last numeric field before it. read.table pads short rows with "", so we scan
+## last numeric field before it. read.table pads short rows with "", so scans
 ## from the right for each row.
 last_nonempty <- function(df_row) {
   v <- df_row[df_row != "" & !is.na(df_row)]
@@ -81,7 +81,7 @@ last_nonempty <- function(df_row) {
 ## Target series codes (index level, 2000=100):
 ##   ...F001  = Immobilienpreisindex Wien, 2000=100
 ##   ...F000  = Immobilienpreisindex Oesterreich (ohne Wien), 2000=100
-## We match on the EXACT trailing code so the many sub-series (EFH/ETW/new/used,
+## Match on the EXACT trailing code so the many sub-series (EFH/ETW/new/used,
 ## and the year-on-year "VerVJ%" variants) are excluded.
 price_raw <- read_oenb("data/oenb_propertypriceindex.csv")
 
@@ -120,7 +120,7 @@ price_df <- price_df %>%
 # Monetary-policy phase bands (from Section 2.1): APP from 2015, PEPP 2020-2022,
 # tightening from mid-2022. Drawn faintly so they frame rather than dominate.
 # geom_rect with a yearqtr axis and +/-Inf y-limits silently drops the rects, so
-# we use numeric x-coordinates (as.numeric on yearqtr) and finite y-limits taken
+# uses numeric x-coordinates (as.numeric on yearqtr) and finite y-limits taken
 # from the data range.
 x_min <- min(price_df$quarter)
 x_max <- max(price_df$quarter)
@@ -170,7 +170,7 @@ ggsave_thesis(file.path(THESIS_FIG_DIR, "10_oenb_price_index.pdf"),
 
 ## --- Panel A: outstanding household housing loans (Bestand), YoY growth -------
 ## Series: "Kredite fuer Wohnbauzwecke ... Private Haushalte ... Inland ...
-## insgesamt ... Bestand", in EUR million. We identify it by the descriptive
+## insgesamt ... Bestand", in EUR million. Identifies it by the descriptive
 ## fields rather than the code AB003 alone (AB003 also tags maturity splits),
 ## requiring: purpose = Wohnbauzwecke, sector = Private Haushalte, region =
 ## Inland, maturity = insgesamt, stock = Bestand.

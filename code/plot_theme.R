@@ -22,8 +22,8 @@ library(ggplot2)
 
 # --- Font: match the .tex (lmodern = Latin Modern) --------------------------
 ## The document uses \usepackage{lmodern} at 12pt. To render charts in the same
-## family we register Latin Modern via showtext when available. If showtext or
-## the font is missing, we fall back to a generic serif so scripts never error.
+## family registers Latin Modern via showtext when available. If showtext or
+## the font is missing, fall back to a generic serif so scripts never error.
 ## (To enable the exact match once: install.packages(c("showtext","sysfonts")).)
 .thesis_font <- "serif"
 if (requireNamespace("showtext", quietly = TRUE) &&

@@ -1,7 +1,6 @@
 
 library(dplyr)
 library(tidyr)
-library(knitr)
 library(zoo)
 library(ggplot2)
 library(lubridate)
@@ -11,7 +10,6 @@ library(tibble)
 # =============================================================================#
 # 1. ENDOGENOUS VARIABLES - PRICES
 # -----------------------------------------------------------------------------#
-# - Price dimensions: EFH, ETW, GST
 # - Date transformation to yearqtr, sorted by district_id & quarter
 
 # - OUTCOME PLAN: prices has three price dimensions:
@@ -20,8 +18,6 @@ library(tibble)
 ##   etw_avg  = apartments (condos)
 
 # - Primary outcome: district-level composite of efh & etw, using (fixed) 2011 dwelling-stock weights
-# - Robustness (possibly): Composite outcome estimated on sample excl. Vienna; test whether Vienna drives the result
-# - Robustness (possibly): Re-estimate on efh/etw only to test whether results are artefact of weighting/property-type mix
 
 prices <- read.csv("./data/RE_prices.csv", header = TRUE ,sep=";")
 
@@ -56,10 +52,9 @@ prices <- prices %>%
 #   w21p   = dwellings in buildings with 21+ dwellings
 
 # - HOUSE (EFH) class: w1 + w2; single-dwelling plus two-dwelling buildings (captures
-#   Doppelhaushaelften / duplexes, which behave like the owner-occupied "house" (efh) market)
+#   Doppelhaushaelften / duplexes)
 # - APARTMENT (ETW) class: w3_5 + w6_10 + w11_20 + w21p (condo/ETW stock)
 
-# - Robustness idea: move w2 into the apartment class to probe this classification choice
 # - Weights are FIXED at 2011 (pre-sample) to keep them exogenous
 
 
@@ -103,11 +98,8 @@ prices <- prices %>%
 # 2. EXOGENOUS VARIABLES - SHOCK (EAMPD)
 # -----------------------------------------------------------------------------#
 # - Construction of aggregate quarterly MP shock:
-# TODO (SIGN CONVENTION): OIS_20Y is the chosen primary instrument
+# - OIS_20Y is the chosen primary instrument
 # - A negative value = downward revision of long-term rates (monetary EASING surprise)
-# - Because the outcome/interaction is coded on the raw signed sum, the expected sign of beta_h
-##  on (Shock x Inelastic) flips with this convention, Data + Empirical Strategy
-##  must chapters state the convention explicitly so the interpretation of beta_h is not reversed
 # - DE20Y/DE30Y are retained for robustness only
 
 # - shock_net_** = net sum of shocks per quarter
@@ -194,7 +186,7 @@ shock_cancel_ratio <- shock_q %>%
 # =============================================================================#
 # 3. EXOGENOUS VARIABLES - ELASTICITY DUMMY, BUILDING LAND RESERVES
 # -----------------------------------------------------------------------------#
-# - Using 2014 building land reserves, as to predate the overall time frame (i.e. avoid endogenetiy)
+# - Using 2014 building land reserves, as to predate the overall time frame (i.e. avoid endogeneity)
 
 bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", fileEncoding = "UTF-8-BOM")
 
@@ -206,7 +198,7 @@ bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", f
   mutate(district_id = as.integer(district_id))
 
 # -----------------------------------------------------------------------------#
-# 3.1 EXOGENOUS VARIABLES - BUILDING LAND RESERVES, PRELIMINARY DIAGNOSTICS
+# 3.1 EXOGENOUS VARIABLES - BUILDING LAND RESERVES
 # -----------------------------------------------------------------------------#
 # - Check if any districts are missing in prices and/or reserve data
 # - Inspect bl-reserves by federal state
@@ -231,67 +223,70 @@ bl <- read.csv("./data/C_bl.csv", header = TRUE, sep=";", dec=".", quote = "", f
 ## NOTE:
 ## all id's in reserves are also in prices
 
+# -----------------------------------------------------------------------------#
+# 3.1.1  BUILDING LAND RESERVES, PRELIMINARY DIAGNOSTICS
+# -----------------------------------------------------------------------------#
 
-blr_diagnostics <- bl
+# blr_diagnostics and the exploratory bundesland plots below are kept for
+# reference
 
-blr_diagnostics <- blr_diagnostics %>%
-  mutate(
-    bundesland_code = floor(district_id / 100)
-  ) %>%
-  mutate(
-    bundesland = case_when(
-      bundesland_code == 1 ~ "Burgenland",
-      bundesland_code == 2 ~ "Kärnten",
-      bundesland_code == 3 ~ "Niederösterreich",
-      bundesland_code == 4 ~ "Oberösterreich",
-      bundesland_code == 5 ~ "Salzburg",
-      bundesland_code == 6 ~ "Steiermark",
-      bundesland_code == 7 ~ "Tirol",
-      bundesland_code == 8 ~ "Vorarlberg",
-      bundesland_code == 9 ~ "Wien",
-      TRUE ~ NA_character_
-    )
-  )
-
-## Boxplots of bl-reserves by bundesland
-
-ggplot(blr_diagnostics, aes(x = bundesland, y = blr_14)) + 
-  geom_boxplot() + 
-  labs(
-    x = "Bundesland", 
-    y = "Building Land Reserve by Bundesland"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-blr_woV <- blr_diagnostics %>%
-  filter(bundesland !="Wien")
-
-
-ggplot(blr_woV, aes(x = bundesland, y = blr_14)) + 
-  geom_boxplot() + 
-  labs(
-    x = "Bundesland", 
-    y = "Building Land Reserve by Bundesland (w/o Wien)"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-## Histograms of bl-reserves by bundesland
-
-ggplot(
-  blr_woV, aes(x = blr_14)) +
-  geom_histogram(bins = 20) +
-  labs(
-    x = "Building Land Reserve by Bundesland (w/o Wien)",
-    y = "Count") 
+# blr_diagnostics <- bl
+#
+# blr_diagnostics <- blr_diagnostics %>%
+#   mutate(
+#     bundesland_code = floor(district_id / 100)
+#   ) %>%
+#   mutate(
+#     bundesland = case_when(
+#       bundesland_code == 1 ~ "Burgenland",
+#       bundesland_code == 2 ~ "Kärnten",
+#       bundesland_code == 3 ~ "Niederösterreich",
+#       bundesland_code == 4 ~ "Oberösterreich",
+#       bundesland_code == 5 ~ "Salzburg",
+#       bundesland_code == 6 ~ "Steiermark",
+#       bundesland_code == 7 ~ "Tirol",
+#       bundesland_code == 8 ~ "Vorarlberg",
+#       bundesland_code == 9 ~ "Wien",
+#       TRUE ~ NA_character_
+#     )
+#   )
+#
+# ## Boxplots of bl-reserves by bundesland
+#
+# ggplot(blr_diagnostics, aes(x = bundesland, y = blr_14)) +
+#   geom_boxplot() +
+#   labs(
+#     x = "Bundesland",
+#     y = "Building Land Reserve by Bundesland"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#
+# ggplot(blr_woV, aes(x = bundesland, y = blr_14)) +
+#   geom_boxplot() +
+#   labs(
+#     x = "Bundesland",
+#     y = "Building Land Reserve by Bundesland (w/o Wien)"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#
+# ## Histograms of bl-reserves by bundesland
+#
+# ggplot(
+#   blr_woV, aes(x = blr_14)) +
+#   geom_histogram(bins = 20) +
+#   labs(
+#     x = "Building Land Reserve by Bundesland (w/o Wien)",
+#     y = "Count")
 
 ## NOTE:
 ## From the distribution of bl reserves, the initial best approach is to classify
 ## the districts as elastic/inelastic from the bottom-quantile excl. Vienna
 ## 24 districts outside Vienna are classified as inelastic, 69 as elastic
+
+blr_woV <- bl %>%
+  filter(floor(district_id / 100) != 9)
 
 q25_th <- blr_woV %>%
   summarise(q25 = quantile(blr_14, 0.25, na.rm = TRUE)) %>%
@@ -301,16 +296,6 @@ bl <- bl %>%
   mutate(
     inelastic_dummy = ifelse(blr_14 <= q25_th, 1, 0)
   )
-
-## Inspecting the classification
-
-bl %>%
-  count(inelastic_dummy)
-
-inelastic_districts <- bl  %>%
-  filter(inelastic_dummy == 1) %>%
-  arrange(blr_14) %>%
-  select(district_id, district_name, blr_14)
 
 
 # =============================================================================#

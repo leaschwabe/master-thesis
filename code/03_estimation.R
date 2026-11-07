@@ -2,8 +2,8 @@
 # 03_ESTIMATION
 # -----------------------------------------------------------------------------#
 # Estimates the panel local projections of the empirical strategy (Chapter 5)
-# and saves a single tidy results object. Producing figures and tables is the
-# job of 04_results.R, which reads the saved object; this script does no
+# and saves a single tidy results object. Producing figures and tables is done in
+# 04_results.R, which reads the saved object; this script does no
 # plotting or LaTeX output.
 #
 # Model (baseline, per horizon h = 0..12):
@@ -100,7 +100,7 @@ panel <- panel %>%
 ## Fits, for each horizon h in `horizons`, the model
 ##   <dep_prefix>_h ~ <rhs> | district_id + quarter
 ## on `data`, with Driscoll-Kraay standard errors at lag L = max(h, 1), and
-## returns a tidy frame of the requested coefficient(s). `keep_terms` names the
+## returns a tidy frame of the coefficient(s). `keep_terms` names the
 ## regressor(s) to extract (e.g. the interaction). `spec` labels the run.
 ## The reported coefficient applies the easing sign convention (SIGN); the raw
 ## estimate is retained in `coef_raw`.
