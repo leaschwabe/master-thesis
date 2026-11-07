@@ -99,3 +99,7 @@ rsconnect/
 
 # Markdown files
 *.md
+
+# Acrobat comment exports (feedback annotations)
+*.xfdf
+*.fdf
