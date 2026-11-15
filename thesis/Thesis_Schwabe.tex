@@ -1,10 +1,14 @@
 \documentclass[a4paper,12pt, headsepline]{scrartcl}
+% hyperref options must be passed before any package that loads hyperref implicitly.
+% hidelinks avoids colored boxes, plainpages=false avoids duplicate page identifiers
+% from the roman/arabic page numbering.
+\PassOptionsToPackage{hidelinks,plainpages=false}{hyperref}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \pagestyle{plain}
 \usepackage{lmodern}
-\usepackage[english]{babel}
+\usepackage[ngerman,english]{babel}
 \usepackage[official]{eurosym}
 \usepackage{ntheorem}
 \newtheorem{hyp}{Hypothesis}
@@ -84,6 +88,9 @@ style = apa]
 
 \DeclareLanguageMapping{english}{english-apa}
 \addbibresource{literature.bib}
+% hyperref is needed for the \href link in the AI attribution statement
+% (options are set at the top of the preamble via \PassOptionsToPackage).
+\usepackage{hyperref}
 
 %% Commands %%
 \DeclareMathOperator*{\argminA}{arg\,min}
@@ -116,16 +123,34 @@ style = apa]
 \pagenumbering{roman} % front matter: roman numerals (title = i, invisible)
 \begin{titlingpage}
 \maketitle
+\end{titlingpage}
+% Abstract page (German, then English) = ii, number visible
+% Set in single spacing to override the global 1.5 spacing so both fit on one page
+\thispagestyle{empty} % no header rule on the abstract page (also suppresses the page number)
+\begin{singlespace}
+\begin{otherlanguage}{ngerman}
+\small
+\begin{abstract}
+\begin{center}
+	\textbf{Zusammenfassung}
+\end{center}
+\vspace*{2pt}
+Nach der globalen Finanzkrise setzte die Europäische Zentralbank mehrere geldpolitische Instrumente jenseits des Leitzinses ein. Die Transmission von Geldpolitik auf die Preise von Wohnimmobilien unterscheidet sich der Literatur zufolge zwischen regionalen Wohnungsmärkten. Wo Bauland knapp ist, sollte ein Nachfrageimpuls eher von den Preisen als von zusätzlicher Bautätigkeit aufgenommen werden, doch der differenzielle Effekt der Geldpolitik auf österreichische Bezirke wurde bislang nicht isoliert. Diese Arbeit untersucht, inwiefern lokale Angebotsknappheit die dynamische Reaktion der Wohnimmobilienpreise auf geldpolitische Schocks der EZB in Österreich moderieren. Dazu werden Panel Local Projections auf Basis eines Quartalspanels österreichischer Bezirke geschätzt, in denen hochfrequente geldpolitische Überraschungen der EZB mit einer Klassifikation der Angebotsknappheit auf Basis der Baulandreserve interagiert werden. Robustheitstests variieren die Stichprobe, das Schockinstrument, den Klassifikationsschwellwert und das Inferenzverfahren. Die Schätzungen liefern keine statistisch signifikanten Hinweise auf eine Moderation durch Angebotsknappheit. Die Punktschätzungen zeigen einen kleinen, verzögerten und positiv gerichteten Unterschied, der bei etwa 0{,}25\,\% seinen Höhepunkt erreicht und danach abklingt, und die wenigen Konfidenzintervalle, die null ausschließen, werden nicht als Evidenz interpretiert. Die Ergebnisse zeigen nicht, dass die Baulandknappheit die Geldpolitik der EZB zu einem wesentlichen Treiber regionaler Divergenz der österreichischen Wohnimmobilienpreise gemacht hat, wobei ein moderater Unterschied nicht ausgeschlossen werden kann.
+\end{abstract}
+\end{otherlanguage}
+\vspace{12pt}
+{\small
 \begin{abstract}
 \begin{center}
 	\textbf{Abstract}
 \end{center}
 \vspace*{2pt}
-% Abstract text goes here.
+After the global financial crisis, the European Central Bank employed several monetary policy tools beyond the policy rate. The transmission of monetary policy to residential real estate prices has been found to differ across regional housing markets. Where developable land is scarce, a demand impulse should be absorbed by prices rather than by new construction, but the differential effect of monetary policy across Austrian districts has not been isolated. This thesis asks to what extent local supply constraints moderate the dynamic response of district-level residential real estate prices to ECB monetary policy shocks in Austria. It estimates panel local projections on a quarterly panel of Austrian districts, in which high-frequency ECB monetary policy surprises are interacted with a classification of supply constraints based on the building land reserve. Robustness checks vary the sample, the shock instrument, the classification threshold, and the inference procedure. The estimates provide no statistically significant evidence of moderation through supply constraints. The point estimates describe a small, delayed, and positively signed differential that peaks at about 0.25\% and recedes thereafter, and the few intervals that exclude zero are not interpreted as evidence. The results do not show that land scarcity made ECB policy a major driver of regional divergence in Austrian residential real estate prices, although a moderate differential cannot be excluded.
 \end{abstract}
-\end{titlingpage}
+}
+\end{singlespace}
 \newpage
-\thispagestyle{empty} % acknowledgements = ii, number suppressed
+\thispagestyle{empty} % acknowledgements = iii, number suppressed
 \vspace*{6.5cm}
 \begin{center}
 \textbf{Acknowledgements}
@@ -133,7 +158,23 @@ style = apa]
 \vspace*{-17pt}
 % Acknowledgements text goes here.
 \newpage
-\tableofcontents % ToC = iii, first visible roman page
+\thispagestyle{empty} % AI attribution statement = iv, number suppressed
+\vspace*{6.5cm}
+\begin{center}
+\textbf{AI Attribution Statement}
+\end{center}
+\vspace*{-17pt}
+% Statement generated with the IBM AI Attribution Toolkit. The four decorative SVG
+% icons of the original code are omitted because the svg package needs Inkscape and
+% shell-escape. Text and link below are unchanged.
+\noindent
+This work was primarily human-created. AI was used to make stylistic edits, such as changes to structure, wording, and clarity. AI was prompted for its contributions, or AI assistance was enabled. AI-generated content was reviewed and approved. The following model(s) or application(s) were used: Model Harness Kiro: Claude Sonnet 4.5-5.5; Claude Opus 4.5-5.5; GPT 5.6 Sol.
+
+\par\vspace{0.5em}
+\noindent
+\href{https://aiattribution.github.io/statements/AIA-Ph-Se-Hin-R-?model=Model%20Harness%20Kiro%3A%20Claude%20Sonnet%204.5%252D5.5%3B%20Claude%20Opus%204.5%252D5.5%3B%20GPT%205.6%20Sol-v1.0}{AIA Primarily human, Stylistic edits, Human-initiated, Reviewed, Model Harness Kiro: Claude Sonnet 4.5-5.5; Claude Opus 4.5-5.5; GPT 5.6 Sol v1.0}
+\newpage
+\tableofcontents % ToC = v
 \clearpage
 \listoffigures
 \clearpage
@@ -191,7 +232,7 @@ The remainder of the thesis is organized as follows. Chapter~\ref{sec:background
 % =============================================================================
 \section{Institutional and Economic Background}\label{sec:background}
 
-This chapter discusses the economic and institutional background against which the empirical analysis is carried out. It first describes the monetary policy environment of the Euro Area over the relevant period. It then turns to the Austrian housing market, tracing the long rise in residential prices and its recent correction, the accompanying deterioration in affordability and the role of credit conditions, and finally the structural differences across Austrian districts in the availability of building land. Together these strands motivate the central concern of the thesis, namely that a common monetary impulse doesn't necessarily reach every regional housing market in the same way when the local capacity to supply new housing differs. The evidence assembled here is drawn from external sources and remains descriptive.
+This chapter discusses the economic and institutional background against which the empirical analysis is carried out. It first describes the monetary policy environment of the Euro Area over the relevant period. It then turns to the Austrian housing market, tracing the long rise in residential prices and its recent correction, the accompanying deterioration in affordability and the role of credit conditions, and finally the structural differences across Austrian districts in the availability of building land. Together these strands motivate the central concern of the thesis, namely that a common monetary impulse does not necessarily reach every regional housing market in the same way when the local capacity to supply new housing differs. The evidence assembled here is drawn from external sources and remains descriptive.
 
 \subsection{ECB Monetary Policy Context}\label{subsec:ecb-context}
 
@@ -267,7 +308,7 @@ Finally, much of the monetary impulse over the sample period arrived through unc
 
 Whether a change in the cost of capital raises real estate prices or instead translates to new construction depends on how the local housing stock can expand. This is the mechanism that motivates this thesis, and it rests on a body of work that treats the responsiveness of supply as a structural market feature rather than a choice that adjusts freely with demand. \citet{saiz2010} gives this idea empirical content by estimating the amount of developable land in United States metropolitan areas from satellite measures of terrain and water. \citet{saiz2010} shows that housing supply elasticity is well described as a function of both physical geography and regulatory constraints. Areas hemmed in by steep terrain or water are precisely those in which supply is least able to accommodate demand, so that a demand impulse is absorbed in prices rather than in quantities. The land scarcity that Austrian districts inherit from their geography is the same kind of predetermined constraint, which is why a measure of building land availability can stand in for supply elasticity in the empirical work that follows.
 
-Why supply constraints should generate an asymmetric response, and not merely a stronger one, is clarified by the durable-housing framework of \citet{glaeser2005}. Because housing stock is long-lived and cannot be dismantled when demand weakens, supply responds asymmetrically, expanding when demand rises but not contracting when it falls. A positive demand shock raises quantities more than prices where land is available, whereas a negative shock falls mainly on prices because the stock does not contract. The same logic implies that monetary easing and tightening don't necessarily transmit to house prices with equal force. \citet{glaeser2018} situate this argument within a broader account of housing supply, in which the gap between market prices and construction costs measures how far physical and regulatory limits push a market away from the frictionless benchmark. Together these contributions supply the theoretical basis for expecting supply constraints to shape both the magnitude and the sign dependence of the real estate price response to monetary policy.
+Why supply constraints should generate an asymmetric response, and not merely a stronger one, is clarified by the durable-housing framework of \citet{glaeser2005}. Because housing stock is long-lived and cannot be dismantled when demand weakens, supply responds asymmetrically, expanding when demand rises but not contracting when it falls. A positive demand shock raises quantities more than prices where land is available, whereas a negative shock falls mainly on prices because the stock does not contract. The same logic implies that monetary easing and tightening do not necessarily transmit to house prices with equal force. \citet{glaeser2018} situate this argument within a broader account of housing supply, in which the gap between market prices and construction costs measures how far physical and regulatory limits push a market away from the frictionless benchmark. Together these contributions supply the theoretical basis for expecting supply constraints to shape both the magnitude and the sign dependence of the real estate price response to monetary policy.
 
 The clearest empirical statement of this mechanism comes from \citet{aastveit2022}, whose design this thesis adapts most directly. Estimating impulse responses for 263 United States metropolitan areas by local projections, they interact narrative monetary policy shocks with the supply elasticities of \citet{saiz2010}. \citet{aastveit2022} find that an easing surprise that lowers the policy rate by one percentage point raises real house prices by close to 7\% after two years in the most supply-inelastic markets, against below 3\% where supply is elastic. The asymmetry is equally central to their findings. The response to a contractionary shock is largely independent of supply elasticity, so that in inelastic markets monetary easing moves prices by roughly twice as much as tightening, while in elastic markets the ordering reverses. This pattern is what the durable-housing literature predicts, since stock that can expand but not contract capitalizes positive and negative impulses differently. \citet{albuquerque2024} corroborates the amplification result for the United States states within a factor-augmented vector autoregression, finding that homeownership and price-to-rent ratios fall by more after a tightening surprise where supply is inelastic. \citet{albuquerque2024} disagrees with \citet{aastveit2022} on the contractionary side, arguing that the response to monetary tightening is also not independent of supply constraints once financial-accelerator effects are allowed to operate. Whether the tightening response depends on supply conditions is thus an open question in the literature, and one on which district-level evidence can bear.
 
@@ -682,11 +723,11 @@ The remaining limitations concern the data, the specification, and the scope of 
 
 This thesis examined to what extent local supply constraints moderate the dynamic response of district-level residential real estate prices to ECB monetary policy shocks in Austria. Motivated by evidence that scarce developable land channels a demand impulse into prices rather than into new construction \citep{saiz2010, aastveit2022}, it estimated panel local projections on a quarterly panel of Austrian districts, in which high-frequency ECB monetary policy surprises were interacted with a classification of supply constraints based on the building land reserve.
 
-The estimates provide no statistically significant evidence that supply constraints moderate the price response. The point estimates describe a small, delayed, and positively signed differential that builds to a peak of about 0.25\% and recedes thereafter, which is in line with the sign and profile that the mechanism predicts. None of the three sub-questions on magnitude, persistence, and asymmetry receives statistically significant support within this research design. Isolated confidence intervals exclude zero, but they are few relative to the number of coefficients estimated and are not independent across neighboring horizons, so they are not interpreted as evidence of a differential response.
+The estimates provide no statistically significant evidence that supply constraints moderate the price response. The point estimates describe a small, delayed, and positively signed differential that builds to a peak of about 0.25\% and recedes thereafter. None of the three sub-questions on magnitude, persistence, and asymmetry receives statistically significant support. Isolated confidence intervals exclude zero, but they are few relative to the number of coefficients estimated and are not independent across neighboring horizons, so they are not interpreted as evidence of a differential response.
 
 The thesis provides district-level evidence for Austria on how local supply conditions shape the transmission of monetary policy to housing. This extends the mechanism established for the United States \citep{aastveit2022} to a Euro Area setting, for which regional differences have so far been traced to the structure of mortgage finance \citep{battistini2025}. The results are compatible with the mechanism established for the United States in sign and shape, but they do not establish it for Austria. At the same time, an imprecisely estimated differential is not evidence that no differential exists. The central implication is that, over the sample period, the scarcity of developable land cannot be shown to have made ECB policy a major driver of regional divergence in Austrian residential real estate prices.
 
-Two limitations qualify these findings most. The supply classification is entangled with urbanity, tenure, and property composition, so the estimated differential cannot be attributed to land scarcity alone. The observation window is also short, which limits the precision of the estimates, particularly at the longer horizons. These limitations point to directions for future research. A topography-based measure of supply elasticity could separate land scarcity from urban density more cleanly than the building land reserve. A longer panel would improve the precision of the longer-horizon estimates. Price data that inform a split between new and existing dwellings would also benefit the analysis, since the average price per m² used here moves with the mix of dwellings sold. Regional data on mortgage rate fixation would additionally allow the exposure of districts to financing costs to be examined directly. In sum, this thesis finds no statistically significant moderation by supply constraints, although the sign and shape of the point estimates leave the channel open for further study with richer data.
+Two limitations qualify these findings most. The supply classification is entangled with urbanity, tenure, and property composition, so the estimated differential cannot be attributed to land scarcity alone. The observation window is also short, which limits the precision of the estimates, particularly at the longer horizons. These limitations point to directions for future research. A topography-based measure of supply elasticity could separate land scarcity from urban density more cleanly than the building land reserve. A longer panel would improve the precision of the longer-horizon estimates. Price data that inform a split between new and existing dwellings would also benefit the analysis, since the average price per m² used here moves with the mix of dwellings sold. In sum, this thesis finds no statistically significant moderation by supply constraints, although the sign and shape of the point estimates leave the channel open for further study with richer data.
 
 \newpage
 \printbibliography[heading=bibintoc]
